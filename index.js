@@ -1,10 +1,11 @@
 import { Game } from './game.js';
+import {Menu} from "./menu.js";
 
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 500,
-  scene: [Game],
+  scene: [Menu, Game],
   physics: {
     default: 'arcade',
     arcade: {
@@ -14,4 +15,4 @@ const config = {
   }
 }
 
-var game = new Phaser.Game(config);
+const game = new Phaser.Game(config);
