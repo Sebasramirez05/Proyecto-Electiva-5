@@ -31,7 +31,7 @@ export class Game extends Phaser.Scene {
   this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
   // Crear jugador
-  this.jugador = this.physics.add.sprite(400, 50, 'jugador');
+  this.jugador = this.physics.add.sprite(400, 150, 'jugador');
   this.jugador.setCollideWorldBounds(true);
   this.jugador.setScale(1.5);
   this.jugador.setMaxVelocity(500, 800);
@@ -44,6 +44,8 @@ export class Game extends Phaser.Scene {
   const base = this.add.rectangle(400, 150, 800, 50, 0xffffff);
   this.physics.add.existing(base, true);
   this.platforms.add(base);
+
+  this.physics.add.collider(this.jugador, this.platforms);
 
   // Crear grupo de plataformas móviles
   this.movingPlatforms = this.physics.add.group({
@@ -59,6 +61,7 @@ export class Game extends Phaser.Scene {
 
   positions.forEach(p => {
     const plataforma = this.movingPlatforms.create(p.x, p.y, 'hielo');
+    plataforma.setScale(0.5);
     plataforma.setVelocityX(100 * p.dir);
     plataforma.setData('dir', p.dir);
   });
@@ -109,6 +112,19 @@ export class Game extends Phaser.Scene {
     if (jugador.body.touching.down && plataforma.body.touching.up) {
       jugador.x += plataforma.body.velocity.x * this.game.loop.delta / 1000;
     }
+  });
+
+  //boton de pausa
+  const botonpausa = this.add.text(750, 20, '⏸', {
+    fontSize: '32px',
+    color: '#ffffff',
+    backgroundColor: '#000000',
+    padding: { x: 10, y: 5 }
+  }).setOrigin(1, 0).setInteractive();
+
+  pauseButton.on('pointerdown', () => {
+    this.scene.launch('PausaMenu');
+    this.scene.pause();            
   });
 }
 
