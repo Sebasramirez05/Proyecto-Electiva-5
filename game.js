@@ -20,50 +20,99 @@ export class Game extends Phaser.Scene {
       frameWidth: 96,
       frameHeight: 96
     });
+    this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
   }
 
   create() {
-    this.add.image(400, 250, 'background').setDisplaySize(800, 500);
-    this.gameoverImage = this.add.image(400, 90, 'gameover');
-    this.gameoverImage.setVisible(false);
+  // Fondo
+  this.add.image(400, 250, 'background').setDisplaySize(800, 500);
 
-    this.jugador = this.physics.add.sprite(400, 250, 'jugador');
-    this.jugador.setCollideWorldBounds(true);
-    this.jugador.setScale(1.5);
-    this.jugador.setMaxVelocity(500, 800);
-    this.jugador.setBounce(0);
+  // Game Over (oculto al inicio)
+  this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
-    this.platforms = this.physics.add.staticGroup();
-    this.platforms.create(400, 480, null).setDisplaySize(800, 20).refreshBody();
-    this.physics.add.collider(this.jugador, this.platforms);
+  // Crear jugador
+  this.jugador = this.physics.add.sprite(400, 50, 'jugador');
+  this.jugador.setCollideWorldBounds(true);
+  this.jugador.setScale(1.5);
+  this.jugador.setMaxVelocity(500, 800);
+  this.jugador.setBounce(0);
 
-    // Animacion de estar quieto
-    this.anims.create({
-      key: 'idle',
-      frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }),
-      frameRate: 8,
-      repeat: -1
-    });
+  // Crear grupo de plataformas fijas
+  this.platforms = this.physics.add.staticGroup();
 
-    // Animacion de correr
-    this.anims.create({
-      key: 'run',
-      frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }),
-      frameRate: 12,
-      repeat: -1
-    });
+  // Crear la base blanca (plataforma grande inferior)
+  const base = this.add.rectangle(400, 150, 800, 50, 0xffffff);
+  this.physics.add.existing(base, true);
+  this.platforms.add(base);
 
-    // Animacion de Saltar
-    this.anims.create({
-      key: 'jump',
-      frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }),
-      frameRate: 8,
-      repeat: 0
-    });
+  // Crear grupo de plataformas móviles
+  this.movingPlatforms = this.physics.add.group({
+    allowGravity: false,
+    immovable: true
+  });
 
-    this.jugador.play('idle');
-    this.cursors = this.input.keyboard.createCursorKeys();
-  }
+  const positions = [
+    { x: 100, y: 350, dir: 1 },
+    { x: 300, y: 300, dir: -1 },
+    { x: 500, y: 200, dir: 1 }
+  ];
+
+  positions.forEach(p => {
+    const plataforma = this.movingPlatforms.create(p.x, p.y, 'hielo');
+    plataforma.setVelocityX(100 * p.dir);
+    plataforma.setData('dir', p.dir);
+  });
+
+  // Animaciones
+  this.anims.create({
+    key: 'idle',
+    frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }),
+    frameRate: 8,
+    repeat: -1
+  });
+
+  this.anims.create({
+    key: 'run',
+    frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }),
+    frameRate: 12,
+    repeat: -1
+  });
+
+  this.anims.create({
+    key: 'jump',
+    frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }),
+    frameRate: 8,
+    repeat: 0
+  });
+
+  this.jugador.play('idle');
+  this.cursors = this.input.keyboard.createCursorKeys();
+
+  // Función para permitir atravesar plataformas si se presiona flecha abajo
+  const permitirAtravesar = (jugador, plataforma) => {
+    const tocandoDesdeArriba =
+      jugador.body.velocity.y >= 0 &&
+      jugador.body.bottom <= plataforma.body.top + 10;
+
+    if (tocandoDesdeArriba && this.cursors.down.isDown) {
+      jugador.body.checkCollision.down = false;
+      this.time.delayedCall(250, () => {
+        jugador.body.checkCollision.down = true;
+      });
+    }
+  };
+
+  // Colisiones
+  this.physics.add.collider(this.jugador, this.platforms, permitirAtravesar);
+  this.physics.add.collider(this.jugador, this.movingPlatforms, (jugador, plataforma) => {
+    permitirAtravesar(jugador, plataforma);
+    if (jugador.body.touching.down && plataforma.body.touching.up) {
+      jugador.x += plataforma.body.velocity.x * this.game.loop.delta / 1000;
+    }
+  });
+}
+
+
 
   update() {
     this.jugador.setVelocityX(0);
