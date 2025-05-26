@@ -21,6 +21,7 @@ export class Game extends Phaser.Scene {
       frameHeight: 96
     });
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
+    this.load.image("bloque", "images/bloque.png")
   }
 
   create() {
@@ -164,9 +165,57 @@ for (let i = 0; i < cantidad; i++) {
     }).setOrigin(1, 0).setInteractive();
 
     pauseButton.on('pointerdown', () => {
-      this.scene.launch('PausaMenu');
+      this.scene.launch('pausamenu');
       this.scene.pause();
     });
+
+    //para formar el iglu
+    this.bloques = 0;
+    this.maxBloques = 14;
+
+    this.igluPosiciones = [
+      //fila 1
+      { x: 600, y: 450 },
+      { x: 630, y: 450 },
+      { x: 690, y: 450 },
+      { x: 720, y: 450 },
+       // Fila 2
+      { x: 600, y: 420 },
+      { x: 630, y: 420 },
+      { x: 660, y: 420 },
+      { x: 690, y: 420 },
+      // Fila 3
+      { x: 620, y: 390 },
+      { x: 650, y: 390 },
+      { x: 680, y: 390 },
+      // Fila 4
+      { x: 635, y: 360 },
+      { x: 665, y: 360 },
+      // Fila 5 (techo)
+      { x: 650, y: 330 }
+  ];
+
+  this.agregarBloqueIglu = () => {
+    if (this.bloques >= this.maxBloques) return;
+
+    const pos = this.igluPosiciones[this.bloques];
+    const bloque = this.add.image(pos.x, pos.y, 'bloque');
+    bloque.setScale(0.5);
+
+    this.bloques++;
+
+    if (this.bloques === this.maxBloques) {
+    console.log("¡Iglú completo!");
+    }
+  };
+
+  this.physics.add.collider(this.jugador, this.movingPlatforms, (jugador, plataforma) => {
+    // Solo cuando toca desde arriba
+    if (jugador.body.touching.down && plataforma.body.touching.up) {
+    this.agregarBloqueIglu();
+    }
+  });
+
   }
 
   update() {

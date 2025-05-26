@@ -1,28 +1,44 @@
 export class PausaMenu extends Phaser.Scene {
-    constructor(){
-        super({key: "pausamenu"})
-    }
+  constructor() {
+    super({ key: "pausamenu" });
+  }
 
-    create(){
-        const {width, heigth}= this.sys.game.confug;
+  create() {
+    const { width, height } = this.sys.game.config;
 
-        /*fondo semitransparente*/
-        this.add.rectangle(0, 0, width, heigth, 0x000000, 0.5).setOrigin(0);
-        this.add.text(width / 2, heigth / 2, "Pausa", {
-            fontSize: "48px",
-            color: "#ffffff"
-        }).setOrigin(0.5);
+    // Fondo oscuro
+    this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0);
 
-        const menuvolver = this.add.text(width / 2, heigth / 2, "Volver al menu", {
-            fontSize: "28px",
-            color: "#ff0000",
-            backgroundColor: "#000000",
-            padding: {x: 20, y: 10}
-        }).setOrigin(0.5).setInteractive();
+    // Texto "Pausa"
+    this.add.text(width / 2, height / 2 - 80, "Pausa", {
+      fontSize: "48px",
+      color: "#ffffff"
+    }).setOrigin(0.5);
 
-        menuvolver.on('pointerdown', () => {
-            this.scene.stop('game');
-            this.scene.start('Menu');
-        });
-    }
+    // Botón: Continuar
+    const continuar = this.add.text(width / 2, height / 2 - 10, "Continuar", {
+      fontSize: "28px",
+      color: "#00ff00",
+      backgroundColor: "#000000",
+      padding: { x: 20, y: 10 }
+    }).setOrigin(0.5).setInteractive();
+
+    continuar.on("pointerdown", () => {
+      this.scene.stop();          
+      this.scene.resume("game");  
+    });
+
+    // Botón: Volver al menú
+    const volverMenu = this.add.text(width / 2, height / 2 + 50, "Volver al menú", {
+      fontSize: "28px",
+      color: "#ff0000",
+      backgroundColor: "#000000",
+      padding: { x: 20, y: 10 }
+    }).setOrigin(0.5).setInteractive();
+
+    volverMenu.on("pointerdown", () => {
+      this.scene.stop("game");  
+      this.scene.start("menu");  
+    });
+  }
 }
