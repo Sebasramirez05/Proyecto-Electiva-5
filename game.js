@@ -6,7 +6,8 @@ export class Game extends Phaser.Scene {
   }
 
   preload() {
-    this.load.image('background', 'images/background.png');
+    this.load.image('agua', 'images/agua1.png');
+    this.load.image('arboles', 'images/arboles1.png');
     this.load.image('gameover', 'images/gameover.png');
     this.load.spritesheet('jugador', 'images/player.png', {
       frameWidth: 96,
@@ -25,86 +26,82 @@ export class Game extends Phaser.Scene {
   }
 
   create() {
-    // Fondo
-    this.add.image(400, 250, 'background').setDisplaySize(800, 500);
+    // Fondo Arboles y Agua
+    this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
+    this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
 
     // Game Over (oculto al inicio)
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
     // Crear jugador
     this.jugador = this.physics.add.sprite(400, 100, 'jugador');
-    this.jugador.setCollideWorldBounds(true);
+    this.jugador.setCollideWorldBounds(false);
     this.jugador.setScale(1.5);
     this.jugador.setMaxVelocity(500, 800);
     this.jugador.setBounce(0);
-    this.jugador.setDepth(1);
+    this.jugador.setDepth(2);
 
     // Crear grupo de plataformas fijas
     this.platforms = this.physics.add.staticGroup();
+    // Crear plataforma invisible justo sobre el agua
+    const baseTransparente = this.add.rectangle(400, 160, 800, 10, 0x000000, 0); // transparencia con alpha 0
+    this.physics.add.existing(baseTransparente, true);
+    baseTransparente.body.checkCollision.up = true;
+    baseTransparente.body.checkCollision.down = false;
+    baseTransparente.body.checkCollision.left = false;
+    baseTransparente.body.checkCollision.right = false;
 
-    // Crear la base blanca
-// Crear la base blanca
-const base = this.add.rectangle(400, 150, 800, 50, 0xffffff);
-this.physics.add.existing(base, true);
-
-// Ajustar área de colisión: delgada y en la parte superior
-base.body.setSize(800, 10); // solo la parte superior
-base.body.setOffset(0, 0);
-
-// Solo colisión desde arriba
-base.body.checkCollision.up = true;
-base.body.checkCollision.down = false;
-base.body.checkCollision.left = false;
-base.body.checkCollision.right = false;
-
-this.platforms.add(base);
+    // Agregar al grupo de plataformas fijas
+    this.platforms.add(baseTransparente);
 
 
-    // Crear grupo de plataformas móviles
-this.movingPlatforms = this.physics.add.group({
-  allowGravity: false,
-  immovable: true
-});
-
-// Crear múltiples filas de plataformas móviles intercaladas
-const filas = [
-  { y: 450, dir: 1 },
-  { y: 370, dir: -1 },
-  { y: 290, dir: 1 },
-  { y: 210, dir: -1 }
-];
-
-filas.forEach((fila, index) => {
-  const cantidad = 5;
-  const anchoPlataforma = 90; // Ajustado para superposición
-  const solapamiento = 5;     // Espacio que se superpone
-  const espacio = anchoPlataforma - solapamiento;
-
-for (let i = 0; i < cantidad; i++) {
-  const x = espacio * (i + 1);
-  const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo');
-  plataforma.setScale(0.5);
-  plataforma.setVelocityX(100 * fila.dir);
-  plataforma.setData('dir', fila.dir);
-
-  // Habilitar solo colisión desde arriba
-  plataforma.body.checkCollision.up = true;
-  plataforma.body.checkCollision.down = false;
-  plataforma.body.checkCollision.left = false;
-  plataforma.body.checkCollision.right = false;
-
-  // Ajustar hitbox aún más reducido
-  const bodyWidth = plataforma.width * 0.3;
-  const bodyHeight = plataforma.height * 0.3;
-  const offsetX = (plataforma.width - bodyWidth) / 2;
-  const offsetY = plataforma.height * 0.1;
-
-  plataforma.setSize(bodyWidth, bodyHeight);
-  plataforma.setOffset(offsetX, offsetY);
-}
 
 
-});
+        // Crear grupo de plataformas móviles
+    this.movingPlatforms = this.physics.add.group({
+      allowGravity: false,
+      immovable: true
+    });
+
+    // Crear múltiples filas de plataformas móviles intercaladas
+    const filas = [
+      { y: 450, dir: 1 },
+      { y: 370, dir: -1 },
+      { y: 290, dir: 1 },
+      { y: 210, dir: -1 }
+    ];
+
+    filas.forEach((fila, index) => {
+      const cantidad = 5;
+      const anchoPlataforma = 90; // Ajustado para superposición
+      const solapamiento = 5;     // Espacio que se superpone
+      const espacio = anchoPlataforma - solapamiento;
+
+    for (let i = 0; i < cantidad; i++) {
+      const x = espacio * (i + 1);
+      const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo');
+      plataforma.setScale(0.5);
+      plataforma.setVelocityX(100 * fila.dir);
+      plataforma.setData('dir', fila.dir);
+
+      // Habilitar solo colisión desde arriba
+      plataforma.body.checkCollision.up = true;
+      plataforma.body.checkCollision.down = false;
+      plataforma.body.checkCollision.left = false;
+      plataforma.body.checkCollision.right = false;
+
+      // Ajustar hitbox aún más reducido
+      const bodyWidth = plataforma.width * 0.3;
+      const bodyHeight = plataforma.height * 0.3;
+      const offsetX = (plataforma.width - bodyWidth) / 2;
+      const offsetY = plataforma.height * 0.1;
+
+      plataforma.setSize(bodyWidth, bodyHeight);
+      plataforma.setOffset(offsetX, offsetY);
+    }
+
+    
+    });
 
 
 
