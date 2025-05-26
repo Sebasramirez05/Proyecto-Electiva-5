@@ -172,9 +172,9 @@ for (let i = 0; i < cantidad; i++) {
     //para formar el iglu
     this.bloques = 0;
     this.maxBloques = 14;
-
+    
     this.igluPosiciones = [
-      //fila 1
+      // fila 1
       { x: 600, y: 450 },
       { x: 630, y: 450 },
       { x: 690, y: 450 },
@@ -193,30 +193,43 @@ for (let i = 0; i < cantidad; i++) {
       { x: 665, y: 360 },
       // Fila 5 (techo)
       { x: 650, y: 330 }
-  ];
+  
+    ];
+
+  this.bloquesAgregados = new Set();
 
   this.agregarBloqueIglu = () => {
-    if (this.bloques >= this.maxBloques) return;
+  if (this.bloques >= this.maxBloques) return;
 
-    const pos = this.igluPosiciones[this.bloques];
-    const bloque = this.add.image(pos.x, pos.y, 'bloque');
-    bloque.setScale(0.5);
+  const pos = this.igluPosiciones[this.bloques];
+  const bloque = this.add.image(pos.x, pos.y, 'bloque');
+  bloque.setScale(0.3);
 
-    this.bloques++;
+  this.bloques++;
+  console.log(`Bloque ${this.bloques} agregado en (${pos.x}, ${pos.y})`);
 
-    if (this.bloques === this.maxBloques) {
+  if (this.bloques === this.maxBloques) {
     console.log("¡Iglú completo!");
-    }
+  }
   };
 
+ 
+  this.ultimoBloqueAgregado = false;
+
   this.physics.add.collider(this.jugador, this.movingPlatforms, (jugador, plataforma) => {
-    // Solo cuando toca desde arriba
-    if (jugador.body.touching.down && plataforma.body.touching.up) {
-    this.agregarBloqueIglu();
+  if (jugador.body.touching.down && plataforma.body.touching.up) {
+    if (!this.ultimoBloqueAgregado) {
+      this.agregarBloqueIglu();
+      this.ultimoBloqueAgregado = true;
+    }
+    } else {
+    
+      this.ultimoBloqueAgregado = false;
     }
   });
 
-  }
+
+}
 
   update() {
     this.jugador.setVelocityX(0);
