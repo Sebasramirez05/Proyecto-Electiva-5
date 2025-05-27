@@ -4,8 +4,7 @@ export class Menu extends Phaser.Scene {
     }
 
     preload(){
-        this.load.image("fondo", "images/fondonieve.jpg")
-        this.load.image("titulo", "images/FROSTBITE.png")
+        this.load.image("fondo", "images/fondo.png")
     }
 
     create(){
@@ -15,9 +14,11 @@ export class Menu extends Phaser.Scene {
 
         /*Boton de iniciar*/
         const startButton = this.add.text(width / 2, height / 1.5, 'Iniciar Juego', {
+            fontFamily: "Arial",
+            fontStyle: "bold",
             fontSize: '32px',
-            color: '#00ff00',
-            backgroundColor: '#000000',
+            color: '#0E2148',
+            backgroundColor: '#7F8CAA',
             padding: { x: 20, y: 10 }
         }).setOrigin(0.5).setInteractive();
 
