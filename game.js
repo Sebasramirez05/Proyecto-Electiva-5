@@ -22,48 +22,32 @@ export class Game extends Phaser.Scene {
       frameHeight: 96
     });
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
-    this.load.image("bloque", "images/bloque.png")
+    this.load.image("bloque", "images/bloque.png");
+    this.load.spritesheet('pajaro', 'images/pajaro.png',{
+      frameWidth: 32,
+      frameHeight: 32
+    });
   }
 
   create() {
-    // Fondo Arboles y Agua
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
-
-    // Game Over (oculto al inicio)
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
-    // Crear jugador
-    this.jugador = this.physics.add.sprite(400, 100, 'jugador');
-    this.jugador.setCollideWorldBounds(false);
-    this.jugador.setScale(1.5);
-    this.jugador.setMaxVelocity(500, 800);
-    this.jugador.setBounce(0);
-    this.jugador.setDepth(2);
+    this.jugador = this.physics.add.sprite(400, 80, 'jugador');
+    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(2).setSize(38, 45).setOffset(30, 50);
 
-    // Crear grupo de plataformas fijas
+    this.pajaros = this.physics.add.group({ allowGravity: false, immovable: true });
     this.platforms = this.physics.add.staticGroup();
-    // Crear plataforma invisible justo sobre el agua
-    const baseTransparente = this.add.rectangle(400, 160, 800, 10, 0x000000, 0); // transparencia con alpha 0
+
+    const baseTransparente = this.add.rectangle(400, 160, 800, 10, 0x000000, 0);
     this.physics.add.existing(baseTransparente, true);
     baseTransparente.body.checkCollision.up = true;
     baseTransparente.body.checkCollision.down = false;
-    baseTransparente.body.checkCollision.left = false;
-    baseTransparente.body.checkCollision.right = false;
-
-    // Agregar al grupo de plataformas fijas
     this.platforms.add(baseTransparente);
 
+    this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
-
-
-        // Crear grupo de plataformas móviles
-    this.movingPlatforms = this.physics.add.group({
-      allowGravity: false,
-      immovable: true
-    });
-
-    // Crear múltiples filas de plataformas móviles intercaladas
     const filas = [
       { y: 450, dir: 1 },
       { y: 370, dir: -1 },
@@ -71,71 +55,59 @@ export class Game extends Phaser.Scene {
       { y: 210, dir: -1 }
     ];
 
-    filas.forEach((fila, index) => {
+    filas.forEach(fila => {
       const cantidad = 5;
-      const anchoPlataforma = 90; // Ajustado para superposición
-      const solapamiento = 5;     // Espacio que se superpone
+      const anchoPlataforma = 90;
+      const solapamiento = 5;
       const espacio = anchoPlataforma - solapamiento;
 
-    for (let i = 0; i < cantidad; i++) {
-      const x = espacio * (i + 1);
-      const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo');
-      plataforma.setScale(0.5);
-      plataforma.setVelocityX(100 * fila.dir);
-      plataforma.setData('dir', fila.dir);
+      for (let i = 0; i < cantidad; i++) {
+        const x = espacio * (i + 1);
+        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo').setScale(0.5).setVelocityX(100 * fila.dir);
+        plataforma.setData('dir', fila.dir);
+        plataforma.body.checkCollision.up = true;
+        plataforma.body.checkCollision.down = false;
 
-      // Habilitar solo colisión desde arriba
-      plataforma.body.checkCollision.up = true;
-      plataforma.body.checkCollision.down = false;
-      plataforma.body.checkCollision.left = false;
-      plataforma.body.checkCollision.right = false;
+        const bodyWidth = plataforma.width * 0.3;
+        const bodyHeight = plataforma.height * 0.3;
+        const offsetX = (plataforma.width - bodyWidth) / 2;
+        const offsetY = plataforma.height * 0.1;
 
-      // Ajustar hitbox aún más reducido
-      const bodyWidth = plataforma.width * 0.3;
-      const bodyHeight = plataforma.height * 0.3;
-      const offsetX = (plataforma.width - bodyWidth) / 2;
-      const offsetY = plataforma.height * 0.1;
-
-      plataforma.setSize(bodyWidth, bodyHeight);
-      plataforma.setOffset(offsetX, offsetY);
-    }
-
-    
+        plataforma.setSize(bodyWidth, bodyHeight);
+        plataforma.setOffset(offsetX, offsetY);
+      }
     });
 
-
-
-    // Animaciones
-    this.anims.create({
-      key: 'idle',
-      frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }),
-      frameRate: 8,
-      repeat: -1
-    });
-
-    this.anims.create({
-      key: 'run',
-      frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }),
-      frameRate: 12,
-      repeat: -1
-    });
-
-    this.anims.create({
-      key: 'jump',
-      frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }),
-      frameRate: 8,
-      repeat: 0
-    });
-
+    this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
+    this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
+    this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    // Permitir atravesar plataformas (saltar desde abajo o flecha abajo)
-    const permitirAtravesar = (jugador, plataforma) => {
-      const tocandoDesdeArriba =
-        jugador.body.velocity.y >= 0 &&
-        jugador.body.bottom <= plataforma.body.top + 10;
+    this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
 
+    // Función de crear pájaros (declarada antes de ser usada)
+    const crearPajaro = (x, y, velocidadX) => {
+      const pajaro = this.pajaros.create(x, y, 'pajaro');
+      pajaro.play('volar');
+      pajaro.setVelocityX(velocidadX);
+      pajaro.setDepth(2);
+      pajaro.setScale(1);
+      pajaro.setFlipX(velocidadX < 0); // mirar hacia donde va
+
+      // Ajustar el tamaño del cuerpo físico (hitbox)
+      pajaro.body.setSize(20, 20); // Establece un tamaño más pequeño para el hitbox
+
+      // Ajustar la posición del cuerpo físico dentro del sprite
+      pajaro.body.setOffset(5, 5); // Desplaza el hitbox para alinearlo con la parte visible del sprite
+    };
+
+
+    crearPajaro(850, 120, -100);
+    crearPajaro(-50, 200, 100);
+
+    const permitirAtravesar = (jugador, plataforma) => {
+      const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
       if (tocandoDesdeArriba && this.cursors.down.isDown) {
         jugador.body.checkCollision.down = false;
         this.time.delayedCall(250, () => {
@@ -144,16 +116,30 @@ export class Game extends Phaser.Scene {
       }
     };
 
-    // Colisiones
+    // Consolidamos la colisión con lógica de iglú
+    this.ultimoBloqueAgregado = false;
     this.physics.add.collider(this.jugador, this.platforms, permitirAtravesar);
     this.physics.add.collider(this.jugador, this.movingPlatforms, (jugador, plataforma) => {
       permitirAtravesar(jugador, plataforma);
       if (jugador.body.touching.down && plataforma.body.touching.up) {
         jugador.x += plataforma.body.velocity.x * this.game.loop.delta / 1000;
+
+        // Agregar bloque al iglú
+        if (!this.ultimoBloqueAgregado) {
+          this.agregarBloqueIglu();
+          this.ultimoBloqueAgregado = true;
+        }
+      } else {
+        this.ultimoBloqueAgregado = false;
       }
     });
 
-    // Botón de pausa
+    this.physics.add.overlap(this.jugador, this.pajaros, (jugador, pajaro) => {
+      this.gameoverImage.setVisible(true);
+      jugador.setTint(0xff0000);
+      this.physics.pause();
+    });
+
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
       color: '#ffffff',
@@ -166,67 +152,27 @@ export class Game extends Phaser.Scene {
       this.scene.pause();
     });
 
-    //para formar el iglu
+    // Lógica del iglú
     this.bloques = 0;
     this.maxBloques = 14;
-    
     this.igluPosiciones = [
-      // fila 1
-      { x: 600, y: 450 },
-      { x: 630, y: 450 },
-      { x: 690, y: 450 },
-      { x: 720, y: 450 },
-       // Fila 2
-      { x: 600, y: 420 },
-      { x: 630, y: 420 },
-      { x: 660, y: 420 },
-      { x: 690, y: 420 },
-      // Fila 3
-      { x: 620, y: 390 },
-      { x: 650, y: 390 },
-      { x: 680, y: 390 },
-      // Fila 4
-      { x: 635, y: 360 },
-      { x: 665, y: 360 },
-      // Fila 5 (techo)
+      { x: 600, y: 450 }, { x: 630, y: 450 }, { x: 690, y: 450 }, { x: 720, y: 450 },
+      { x: 600, y: 420 }, { x: 630, y: 420 }, { x: 660, y: 420 }, { x: 690, y: 420 },
+      { x: 620, y: 390 }, { x: 650, y: 390 }, { x: 680, y: 390 },
+      { x: 635, y: 360 }, { x: 665, y: 360 },
       { x: 650, y: 330 }
-  
     ];
 
-  this.bloquesAgregados = new Set();
-
-  this.agregarBloqueIglu = () => {
-  if (this.bloques >= this.maxBloques) return;
-
-  const pos = this.igluPosiciones[this.bloques];
-  const bloque = this.add.image(pos.x, pos.y, 'bloque');
-  bloque.setScale(0.3);
-
-  this.bloques++;
-  console.log(`Bloque ${this.bloques} agregado en (${pos.x}, ${pos.y})`);
-
-  if (this.bloques === this.maxBloques) {
-    console.log("¡Iglú completo!");
+    this.agregarBloqueIglu = () => {
+      if (this.bloques >= this.maxBloques) return;
+      const pos = this.igluPosiciones[this.bloques];
+      const bloque = this.add.image(pos.x, pos.y, 'bloque');
+      bloque.setScale(0.3);
+      this.bloques++;
+      console.log(`Bloque ${this.bloques} agregado en (${pos.x}, ${pos.y})`);
+      if (this.bloques === this.maxBloques) console.log("¡Iglú completo!");
+    };
   }
-  };
-
- 
-  this.ultimoBloqueAgregado = false;
-
-  this.physics.add.collider(this.jugador, this.movingPlatforms, (jugador, plataforma) => {
-  if (jugador.body.touching.down && plataforma.body.touching.up) {
-    if (!this.ultimoBloqueAgregado) {
-      this.agregarBloqueIglu();
-      this.ultimoBloqueAgregado = true;
-    }
-    } else {
-    
-      this.ultimoBloqueAgregado = false;
-    }
-  });
-
-
-}
 
   update() {
     this.jugador.setVelocityX(0);
@@ -235,24 +181,18 @@ export class Game extends Phaser.Scene {
     if (this.cursors.right.isDown) {
       this.jugador.setVelocityX(200);
       this.jugador.flipX = false;
-      if (this.jugador.body.onFloor()) {
-        this.jugador.play('run', true);
-      }
+      if (this.jugador.body.onFloor()) this.jugador.play('run', true);
       moving = true;
     } else if (this.cursors.left.isDown) {
       this.jugador.setVelocityX(-200);
       this.jugador.flipX = true;
-      if (this.jugador.body.onFloor()) {
-        this.jugador.play('run', true);
-      }
+      if (this.jugador.body.onFloor()) this.jugador.play('run', true);
       moving = true;
     }
 
     if (this.cursors.up.isDown && this.jugador.body.onFloor()) {
       this.jugador.play('jump', true);
-      this.time.delayedCall(80, () => {
-        this.jugador.setVelocityY(-450);
-      });
+      this.time.delayedCall(80, () => this.jugador.setVelocityY(-450));
     }
 
     if (!this.jugador.body.onFloor() && this.jugador.body.velocity.y > 0) {
@@ -269,17 +209,12 @@ export class Game extends Phaser.Scene {
       this.physics.pause();
     }
 
-
-
     this.movingPlatforms.children.iterate(plataforma => {
       if (plataforma.x < -plataforma.displayWidth / 2) {
-        // Salió por la izquierda, reaparece por la derecha
         plataforma.x = 800 + plataforma.displayWidth / 2;
       } else if (plataforma.x > 800 + plataforma.displayWidth / 2) {
-        // Salió por la derecha, reaparece por la izquierda
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
-
   }
 }
