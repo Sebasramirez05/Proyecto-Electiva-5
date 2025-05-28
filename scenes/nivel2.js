@@ -47,7 +47,7 @@ export class Nivel2 extends Phaser.Scene {
       { y: 490, dir: 1 },
       { y: 410, dir: -1 },
       { y: 330, dir: 1 },
-      { y: 250, dir: -1 }  // ← fila visualmente más alta
+      { y: 250, dir: -1 } 
     ];
 
     const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
