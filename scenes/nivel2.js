@@ -1,6 +1,6 @@
-export class Game extends Phaser.Scene {
+export class Nivel2 extends Phaser.Scene {
   constructor() {
-    super({ key: 'game' });
+    super({ key: 'nivel2' });
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
@@ -14,7 +14,7 @@ export class Game extends Phaser.Scene {
     this.load.spritesheet('run', 'images/Run.png', { frameWidth: 96, frameHeight: 96 });
     this.load.spritesheet('jump', 'images/Jump.png', { frameWidth: 96, frameHeight: 96 });
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
-    this.load.image("bloque", "images/bloque.png");
+    this.load.image('bloque', 'images/bloque.png');
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
   }
 
@@ -23,8 +23,14 @@ export class Game extends Phaser.Scene {
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
-    this.jugador = this.physics.add.sprite(400, 80, 'jugador');
-    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(2).setSize(38, 45).setOffset(30, 50);
+    this.jugador = this.physics.add.sprite(400, 80, 'jugador')
+      .setCollideWorldBounds(false)
+      .setScale(1.5)
+      .setMaxVelocity(500, 800)
+      .setBounce(0)
+      .setDepth(2)
+      .setSize(38, 45)
+      .setOffset(30, 50);
 
     this.pajaros = this.physics.add.group({ allowGravity: false, immovable: true });
     this.platforms = this.physics.add.staticGroup();
@@ -41,18 +47,20 @@ export class Game extends Phaser.Scene {
       { y: 490, dir: 1 },
       { y: 410, dir: -1 },
       { y: 330, dir: 1 },
-      { y: 250, dir: -1 }
+      { y: 250, dir: -1 }  // ← fila visualmente más alta
     ];
 
     const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
-    const espacio = anchoReal + 20;
+    const espacio = anchoReal + 5;
 
     filas.forEach(fila => {
-      const cantidad = 5;
+      const cantidad = 6;
 
       for (let i = 0; i < cantidad; i++) {
-        const x = 100 + espacio * i;
-        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo').setScale(0.35).setVelocityX(100 * fila.dir);
+        const x = 70 + espacio * i;
+        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
+          .setScale(0.3)
+          .setVelocityX(100 * fila.dir);
         plataforma.setData('dir', fila.dir);
         plataforma.body.checkCollision.up = true;
         plataforma.body.checkCollision.down = false;
@@ -60,7 +68,7 @@ export class Game extends Phaser.Scene {
         const bodyHeight = plataforma.height * 0.3;
         const offsetY = plataforma.height * 0.1;
 
-        plataforma.setSize(175, bodyHeight);
+        plataforma.setSize(160, bodyHeight);
         plataforma.setOffset(0, offsetY);
       }
     });
@@ -68,37 +76,25 @@ export class Game extends Phaser.Scene {
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
+    this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+    const crearPajaro = (x, y, velocidadX) => {
+      const pajaro = this.pajaros.create(x, y, 'pajaro');
+      pajaro.play('volar');
+      pajaro.setVelocityX(velocidadX);
+      pajaro.setDepth(2);
+      pajaro.setScale(1);
+      pajaro.body.setSize(20, 20);
+      pajaro.body.setOffset(5, 5);
+      if (velocidadX < 0) pajaro.setFlipX(true);
+    };
 
-
-const crearPajaro = (x, y, velocidadX) => {
-  const pajaro = this.pajaros.create(x, y, 'pajaro');
-  pajaro.play('volar');
-  pajaro.setVelocityX(velocidadX);
-  pajaro.setDepth(2);
-  pajaro.setScale(1);
-  pajaro.body.setSize(20, 20);
-  pajaro.body.setOffset(5, 5);
-  if (velocidadX < 0) {
-    pajaro.setFlipX(true);
-  }
-};
-
-// Pájaro 1 (izquierda → derecha)
-crearPajaro(-50, filas[0].y - 50, 75);
-
-// Pájaro 2 (izquierda → derecha)
-crearPajaro(-100, filas[1].y - 50, 75);
-
-// Pájaro 3 (derecha → izquierda)
-crearPajaro(850, filas[2].y - 50, -75);
-
-// Pájaro 4 (izquierda → derecha)
-crearPajaro(-150, filas[3].y - 50, 75);
-
+    // ✅ Pájaros en la fila más alta (fila 3 visualmente)
+    crearPajaro(-50, filas[3].y - 50, 85);
+    crearPajaro(-150, filas[3].y - 50, 85);
 
     const permitirAtravesar = (jugador, plataforma) => {
       const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
@@ -159,19 +155,17 @@ crearPajaro(-150, filas[3].y - 50, 75);
       const bloque = this.add.image(pos.x, pos.y, 'bloque');
       bloque.setScale(0.3);
       this.bloques++;
-      console.log(`Bloque ${this.bloques} agregado en (${pos.x}, ${pos.y})`);
 
       if (this.bloques === this.maxBloques) {
         console.log("¡Iglú completo! Nivel terminado.");
         this.time.delayedCall(1000, () => {
-          this.scene.start('nivel2'); // o 'nivel3', si tienes más
+          this.scene.start('menu'); // Cambiar a otra escena si lo deseas
         });
-      };
-    }
+      }
+    };
   }
 
   update() {
-    // Mover al jugador con la plataforma si está parado sobre ella
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
         this.jugador.body.velocity.x === 0) {
@@ -223,12 +217,9 @@ crearPajaro(-150, filas[3].y - 50, 75);
     });
 
     this.pajaros.children.iterate(pajaro => {
-      if (pajaro.x < -100 && pajaro.body.velocity.x < 0) {
-        pajaro.x = 850;
-      } else if (pajaro.x > 900 && pajaro.body.velocity.x > 0) {
-        pajaro.x = -50;
+      if (pajaro.x > 900) {
+        pajaro.x = -100;
       }
     });
-
   }
 }
