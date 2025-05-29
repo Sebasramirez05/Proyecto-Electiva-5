@@ -1,6 +1,6 @@
-export class Game extends Phaser.Scene{
+export class Nivel2 extends Phaser.Scene {
   constructor() {
-    super({ key: 'game' });
+    super({ key: 'nivel2' });
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
@@ -14,38 +14,38 @@ export class Game extends Phaser.Scene{
     this.load.spritesheet('run', 'images/Run.png', { frameWidth: 96, frameHeight: 96 });
     this.load.spritesheet('jump', 'images/Jump.png', { frameWidth: 96, frameHeight: 96 });
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
-    this.load.image("bloque", "images/bloque.png");
+    this.load.image('bloque', 'images/bloque.png');
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('pez', 'images/pez.png', { frameWidth: 48, frameHeight: 48 });
   }
 
   create() {
-<<<<<<< HEAD
-
-=======
-    this.scene.start('nivel2');
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
- 
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
-    this.jugador = this.physics.add.sprite(400, 80, 'jugador');
-    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(2).setSize(38, 45).setOffset(30, 50);
+    this.jugador = this.physics.add.sprite(400, 80, 'jugador')
+      .setCollideWorldBounds(false)
+      .setScale(1.5)
+      .setMaxVelocity(500, 800)
+      .setBounce(0)
+      .setDepth(2)
+      .setSize(38, 45)
+      .setOffset(30, 50);
+    
 
     this.pajaros = this.physics.add.group({ allowGravity: false, immovable: true });
+    this.peces = this.physics.add.group({ allowGravity: false, immovable: true });
     this.platforms = this.physics.add.staticGroup();
 
     const baseTransparente = this.add.rectangle(400, 166, 800, 10, 0x000000, 0);
     this.physics.add.existing(baseTransparente, true);
     baseTransparente.body.checkCollision.up = true;
- 
     baseTransparente.body.checkCollision.down = false;
-  
     this.platforms.add(baseTransparente);
 
     this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
-  
     const filas = [
       { y: 520, dir: 1 },
       { y: 430, dir: -1 },
@@ -54,14 +54,16 @@ export class Game extends Phaser.Scene{
     ];
 
     const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
-    const espacio = anchoReal + 20;
+    const espacio = anchoReal + 5;
 
+    this.barrerasMortales = [];
     filas.forEach(fila => {
-      const cantidad = 5;
-
+      const cantidad = 6;
       for (let i = 0; i < cantidad; i++) {
-        const x = 100 + espacio * i;
-        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo').setScale(0.35).setVelocityX(100 * fila.dir);
+        const x = 70 + espacio * i;
+        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
+          .setScale(0.3)
+          .setVelocityX(100 * fila.dir);
         plataforma.setData('dir', fila.dir);
         plataforma.body.checkCollision.up = true;
         plataforma.body.checkCollision.down = false;
@@ -69,57 +71,79 @@ export class Game extends Phaser.Scene{
         const bodyHeight = plataforma.height * 0.3;
         const offsetY = plataforma.height * 0.1;
 
-        plataforma.setSize(175, bodyHeight);
+        plataforma.setSize(160, bodyHeight);
         plataforma.setOffset(0, offsetY);
       }
+
+       const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+        this.physics.add.existing(barrera, true);
+        barrera.body.checkCollision.up = true;
+        barrera.body.checkCollision.down = false;
+        this.barrerasMortales.push(barrera);
+
+this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+  const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+  if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+    this.jugador.setTint(0xff0000);
+    this.gameoverImage.setVisible(true);
+    this.physics.pause();
+  }
+});
     });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
+    this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+
+    this.anims.create({
+      key: 'nadar',
+      frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }),
+      frameRate: 6,
+      repeat: -1
+    });
+
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
 
-    this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+    const crearPajaro = (x, y, velocidadX) => {
+      const pajaro = this.pajaros.create(x, y, 'pajaro');
+      pajaro.play('volar');
+      pajaro.setVelocityX(velocidadX);
+      pajaro.setDepth(2);
+      pajaro.setScale(1);
+      pajaro.body.setSize(23, 20);
+      pajaro.body.setOffset(5, 8);
+      if (velocidadX < 0) pajaro.setFlipX(true);
+    };
+
+    crearPajaro(-50, filas[3].y - 50, 85);
+    crearPajaro(-150, filas[3].y - 50, 85);
+    crearPajaro(-100, filas[0].y - 50, -85);
+    crearPajaro(-200, filas[0].y - 50, -85);
 
 
-const crearPajaro = (x, y, velocidadX) => {
-  const pajaro = this.pajaros.create(x, y, 'pajaro');
-  pajaro.play('volar');
-  pajaro.setVelocityX(velocidadX);
-  pajaro.setDepth(2);
-  pajaro.setScale(1);
-  pajaro.body.setSize(23, 20);
-  pajaro.body.setOffset(5, 8);
-  if (velocidadX < 0) {
-    pajaro.setFlipX(true);
-  }
-};
+    const filasPeces = [
+      { y: filas[1].y - 50, dir: 1, cantidad: 3 },  // Segunda fila más baja
+      { y: filas[2].y - 50, dir: -1, cantidad: 2 }  // Fila superior a esa
+    ];
 
-// Pájaro 1 (izquierda → derecha)
-crearPajaro(-50, filas[0].y - 50, 75);
-
-// Pájaro 2 (izquierda → derecha)
-crearPajaro(-100, filas[1].y - 50, 75);
-
-// Pájaro 3 (derecha → izquierda)
-crearPajaro(850, filas[2].y - 50, -75);
-
-// Pájaro 4 (izquierda → derecha)
-crearPajaro(-150, filas[3].y - 50, 75);
-
-<<<<<<< HEAD
-
-
-
-    crearPajaro(850, 120, -100);
-    crearPajaro(-50, 200, 100);
-=======
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
-
+    filasPeces.forEach(fila => {
+      for (let i = 0; i < fila.cantidad; i++) {
+        const x = fila.dir > 0 ? -100 - i * 100 : 900 + i * 100;
+        const pez = this.peces.create(x, fila.y, 'pez');
+        pez.play('nadar');
+        pez.setVelocityX(fila.dir * 60);
+        pez.setScale(1.2);
+        pez.setDepth(1);
+        pez.setFlipX(fila.dir < 0);
+        pez.body.setSize(20, 20);
+        pez.body.setOffset(13, 13);
+      }
+    });
 
     const permitirAtravesar = (jugador, plataforma) => {
-        const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
+      const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
       if (tocandoDesdeArriba && this.cursors.down.isDown) {
         jugador.body.checkCollision.down = false;
         this.time.delayedCall(250, () => {
@@ -149,12 +173,16 @@ crearPajaro(-150, filas[3].y - 50, 75);
       this.physics.pause();
     });
 
+    this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
+      pez.disableBody(true, true); // Oculta y desactiva el pez
+    });
+
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
       color: '#ffffff',
       backgroundColor: '#000000',
       padding: { x: 10, y: 5 }
-    }).setOrigin(1, 0).setInteractive();
+    }).setOrigin(1, 0).setInteractive().setDepth(3);
 
     pauseButton.on('pointerdown', () => {
       this.scene.launch('pausamenu');
@@ -163,14 +191,12 @@ crearPajaro(-150, filas[3].y - 50, 75);
 
     this.bloques = 0;
     this.maxBloques = 14;
-
     this.igluPosiciones = [
       { x: 600, y: 450 }, { x: 630, y: 450 }, { x: 690, y: 450 }, { x: 720, y: 450 },
       { x: 600, y: 420 }, { x: 630, y: 420 }, { x: 660, y: 420 }, { x: 690, y: 420 },
       { x: 620, y: 390 }, { x: 650, y: 390 }, { x: 680, y: 390 },
       { x: 635, y: 360 }, { x: 665, y: 360 },
       { x: 650, y: 330 }
-   
     ];
 
     this.agregarBloqueIglu = () => {
@@ -183,14 +209,13 @@ crearPajaro(-150, filas[3].y - 50, 75);
       if (this.bloques === this.maxBloques) {
         console.log("¡Iglú completo! Nivel terminado.");
         this.time.delayedCall(1000, () => {
-          this.scene.start('nivel2'); // o 'nivel3', si tienes más
+          this.scene.start('menu');
         });
-      };
-    }
+      }
+    };
   }
 
   update() {
-    // Mover al jugador con la plataforma si está parado sobre ella
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
         this.jugador.body.velocity.x === 0) {
@@ -198,6 +223,10 @@ crearPajaro(-150, filas[3].y - 50, 75);
     } else {
       this.plataformaActual = null;
     }
+
+    this.barrerasMortales.forEach(barrera => {
+      barrera.x = 400;
+    });
 
     this.jugador.setVelocityX(0);
     let moving = false;
@@ -233,29 +262,27 @@ crearPajaro(-150, filas[3].y - 50, 75);
       this.physics.pause();
     }
 
-   
     this.movingPlatforms.children.iterate(plataforma => {
- 
       if (plataforma.x < -plataforma.displayWidth / 2) {
- 
         plataforma.x = 800 + plataforma.displayWidth / 2;
       } else if (plataforma.x > 800 + plataforma.displayWidth / 2) {
- 
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
-<<<<<<< HEAD
- 
-=======
 
     this.pajaros.children.iterate(pajaro => {
-      if (pajaro.x < -100 && pajaro.body.velocity.x < 0) {
-        pajaro.x = 850;
-      } else if (pajaro.x > 900 && pajaro.body.velocity.x > 0) {
-        pajaro.x = -50;
+      if (pajaro.x > 900) {
+        pajaro.x = -100;
       }
     });
 
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
+    this.peces.children.iterate(pez => {
+      if (!pez.active) return;
+      if (pez.body.velocity.x > 0 && pez.x > 900) {
+        pez.x = -100;
+      } else if (pez.body.velocity.x < 0 && pez.x < -100) {
+        pez.x = 900;
+      }
+    });
   }
 }
