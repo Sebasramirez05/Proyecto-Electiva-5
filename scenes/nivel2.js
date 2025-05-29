@@ -16,6 +16,7 @@ export class Nivel2 extends Phaser.Scene {
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
     this.load.image('bloque', 'images/bloque.png');
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('pez', 'images/pez.png', { frameWidth: 48, frameHeight: 48 });
   }
 
   create() {
@@ -31,8 +32,10 @@ export class Nivel2 extends Phaser.Scene {
       .setDepth(2)
       .setSize(38, 45)
       .setOffset(30, 50);
+    
 
     this.pajaros = this.physics.add.group({ allowGravity: false, immovable: true });
+    this.peces = this.physics.add.group({ allowGravity: false, immovable: true });
     this.platforms = this.physics.add.staticGroup();
 
     const baseTransparente = this.add.rectangle(400, 166, 800, 10, 0x000000, 0);
@@ -47,15 +50,15 @@ export class Nivel2 extends Phaser.Scene {
       { y: 490, dir: 1 },
       { y: 410, dir: -1 },
       { y: 330, dir: 1 },
-      { y: 250, dir: -1 } 
+      { y: 250, dir: -1 }
     ];
 
     const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
     const espacio = anchoReal + 5;
 
+    this.barrerasMortales = [];
     filas.forEach(fila => {
       const cantidad = 6;
-
       for (let i = 0; i < cantidad; i++) {
         const x = 70 + espacio * i;
         const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
@@ -71,12 +74,34 @@ export class Nivel2 extends Phaser.Scene {
         plataforma.setSize(160, bodyHeight);
         plataforma.setOffset(0, offsetY);
       }
+
+       const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+        this.physics.add.existing(barrera, true);
+        barrera.body.checkCollision.up = true;
+        barrera.body.checkCollision.down = false;
+        this.barrerasMortales.push(barrera);
+
+        this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+        const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+        if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+          this.jugador.setTint(0xff0000);
+          this.gameoverImage.setVisible(true);
+          this.physics.pause();
+        }
+      });
     });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
     this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+
+    this.anims.create({
+      key: 'nadar',
+      frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }),
+      frameRate: 6,
+      repeat: -1
+    });
 
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -87,14 +112,35 @@ export class Nivel2 extends Phaser.Scene {
       pajaro.setVelocityX(velocidadX);
       pajaro.setDepth(2);
       pajaro.setScale(1);
-      pajaro.body.setSize(20, 20);
-      pajaro.body.setOffset(5, 5);
+      pajaro.body.setSize(23, 20);
+      pajaro.body.setOffset(5, 8);
       if (velocidadX < 0) pajaro.setFlipX(true);
     };
 
-    // ✅ Pájaros en la fila más alta (fila 3 visualmente)
     crearPajaro(-50, filas[3].y - 50, 85);
     crearPajaro(-150, filas[3].y - 50, 85);
+    crearPajaro(-100, filas[0].y - 50, -85);
+    crearPajaro(-200, filas[0].y - 50, -85);
+
+
+    const filasPeces = [
+      { y: filas[1].y - 50, dir: 1, cantidad: 3 },  // Segunda fila más baja
+      { y: filas[2].y - 50, dir: -1, cantidad: 2 }  // Fila superior a esa
+    ];
+
+    filasPeces.forEach(fila => {
+      for (let i = 0; i < fila.cantidad; i++) {
+        const x = fila.dir > 0 ? -100 - i * 100 : 900 + i * 100;
+        const pez = this.peces.create(x, fila.y, 'pez');
+        pez.play('nadar');
+        pez.setVelocityX(fila.dir * 60);
+        pez.setScale(1.2);
+        pez.setDepth(1);
+        pez.setFlipX(fila.dir < 0);
+        pez.body.setSize(20, 20);
+        pez.body.setOffset(13, 13);
+      }
+    });
 
     const permitirAtravesar = (jugador, plataforma) => {
       const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
@@ -125,6 +171,10 @@ export class Nivel2 extends Phaser.Scene {
       this.gameoverImage.setVisible(true);
       jugador.setTint(0xff0000);
       this.physics.pause();
+    });
+
+    this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
+      pez.disableBody(true, true); // Oculta y desactiva el pez
     });
 
     const pauseButton = this.add.text(750, 20, '⏸', {
@@ -159,7 +209,7 @@ export class Nivel2 extends Phaser.Scene {
       if (this.bloques === this.maxBloques) {
         console.log("¡Iglú completo! Nivel terminado.");
         this.time.delayedCall(1000, () => {
-          this.scene.start('menu'); // Cambiar a otra escena si lo deseas
+          this.scene.start('menu');
         });
       }
     };
@@ -173,6 +223,10 @@ export class Nivel2 extends Phaser.Scene {
     } else {
       this.plataformaActual = null;
     }
+
+    this.barrerasMortales.forEach(barrera => {
+      barrera.x = 400;
+    });
 
     this.jugador.setVelocityX(0);
     let moving = false;
@@ -219,6 +273,15 @@ export class Nivel2 extends Phaser.Scene {
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x > 900) {
         pajaro.x = -100;
+      }
+    });
+
+    this.peces.children.iterate(pez => {
+      if (!pez.active) return;
+      if (pez.body.velocity.x > 0 && pez.x > 900) {
+        pez.x = -100;
+      } else if (pez.body.velocity.x < 0 && pez.x < -100) {
+        pez.x = 900;
       }
     });
   }

@@ -19,6 +19,7 @@ export class Game extends Phaser.Scene {
   }
 
   create() {
+    this.scene.start('nivel2');
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
@@ -80,8 +81,8 @@ const crearPajaro = (x, y, velocidadX) => {
   pajaro.setVelocityX(velocidadX);
   pajaro.setDepth(2);
   pajaro.setScale(1);
-  pajaro.body.setSize(20, 20);
-  pajaro.body.setOffset(5, 5);
+  pajaro.body.setSize(23, 20);
+  pajaro.body.setOffset(5, 8);
   if (velocidadX < 0) {
     pajaro.setFlipX(true);
   }
@@ -159,7 +160,6 @@ crearPajaro(-150, filas[3].y - 50, 75);
       const bloque = this.add.image(pos.x, pos.y, 'bloque');
       bloque.setScale(0.3);
       this.bloques++;
-      console.log(`Bloque ${this.bloques} agregado en (${pos.x}, ${pos.y})`);
 
       if (this.bloques === this.maxBloques) {
         console.log("¡Iglú completo! Nivel terminado.");
