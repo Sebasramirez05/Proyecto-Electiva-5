@@ -39,9 +39,9 @@ export class Game extends Phaser.Scene {
     this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
     const filas = [
-      { y: 490, dir: 1 },
-      { y: 410, dir: -1 },
-      { y: 330, dir: 1 },
+      { y: 520, dir: 1 },
+      { y: 430, dir: -1 },
+      { y: 340, dir: 1 },
       { y: 250, dir: -1 }
     ];
 

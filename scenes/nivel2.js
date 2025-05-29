@@ -47,9 +47,9 @@ export class Nivel2 extends Phaser.Scene {
     this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
     const filas = [
-      { y: 490, dir: 1 },
-      { y: 410, dir: -1 },
-      { y: 330, dir: 1 },
+      { y: 520, dir: 1 },
+      { y: 430, dir: -1 },
+      { y: 340, dir: 1 },
       { y: 250, dir: -1 }
     ];
 
@@ -81,14 +81,14 @@ export class Nivel2 extends Phaser.Scene {
         barrera.body.checkCollision.down = false;
         this.barrerasMortales.push(barrera);
 
-        this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
-        const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
-        if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-          this.jugador.setTint(0xff0000);
-          this.gameoverImage.setVisible(true);
-          this.physics.pause();
-        }
-      });
+this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+  const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+  if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+    this.jugador.setTint(0xff0000);
+    this.gameoverImage.setVisible(true);
+    this.physics.pause();
+  }
+});
     });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
@@ -182,7 +182,7 @@ export class Nivel2 extends Phaser.Scene {
       color: '#ffffff',
       backgroundColor: '#000000',
       padding: { x: 10, y: 5 }
-    }).setOrigin(1, 0).setInteractive();
+    }).setOrigin(1, 0).setInteractive().setDepth(3);
 
     pauseButton.on('pointerdown', () => {
       this.scene.launch('pausamenu');
