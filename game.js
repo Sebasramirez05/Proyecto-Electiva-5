@@ -4,6 +4,31 @@ export class Game extends Phaser.Scene{
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
+    this.bloques = 0;
+    this.maxBloques = 11;
+    this.igluCompleto = false;
+    //IGLU
+    this.igluPosiciones = [
+  // Fila 1 (base) - ajusta la Y para que esté justo sobre la plataforma base
+ { x: 600, y: 140 },
+  { x: 635, y: 140 },
+  null,
+  { x: 690, y: 140 },
+  { x: 725, y: 140 },
+
+  // Fila 2
+  { x: 620, y: 110 },
+  { x: 650, y: 110 },
+  { x: 670, y: 110 },
+  { x: 700, y: 110 },
+
+  // Fila 3
+  { x: 630, y: 80 },
+  { x: 660, y: 80 },
+  { x: 680, y: 80 },
+
+];
+
   }
 
   preload() {
@@ -15,22 +40,20 @@ export class Game extends Phaser.Scene{
     this.load.spritesheet('jump', 'images/Jump.png', { frameWidth: 96, frameHeight: 96 });
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
     this.load.image("bloque", "images/bloque.png");
+    this.load.image("puerta", "images/puerta.png");
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
   }
 
   create() {
-<<<<<<< HEAD
 
-=======
-    this.scene.start('nivel2');
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
+    
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
     this.jugador = this.physics.add.sprite(400, 80, 'jugador');
-    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(2).setSize(38, 45).setOffset(30, 50);
+    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(3).setSize(38, 45).setOffset(30, 50);
 
     this.pajaros = this.physics.add.group({ allowGravity: false, immovable: true });
     this.platforms = this.physics.add.staticGroup();
@@ -108,14 +131,11 @@ crearPajaro(850, filas[2].y - 50, -75);
 // Pájaro 4 (izquierda → derecha)
 crearPajaro(-150, filas[3].y - 50, 75);
 
-<<<<<<< HEAD
 
 
 
     crearPajaro(850, 120, -100);
     crearPajaro(-50, 200, 100);
-=======
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
 
 
     const permitirAtravesar = (jugador, plataforma) => {
@@ -151,8 +171,7 @@ crearPajaro(-150, filas[3].y - 50, 75);
 
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
-      color: '#ffffff',
-      backgroundColor: '#000000',
+      color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(1, 0).setInteractive();
 
@@ -161,32 +180,29 @@ crearPajaro(-150, filas[3].y - 50, 75);
       this.scene.pause();
     });
 
-    this.bloques = 0;
-    this.maxBloques = 14;
-
-    this.igluPosiciones = [
-      { x: 600, y: 450 }, { x: 630, y: 450 }, { x: 690, y: 450 }, { x: 720, y: 450 },
-      { x: 600, y: 420 }, { x: 630, y: 420 }, { x: 660, y: 420 }, { x: 690, y: 420 },
-      { x: 620, y: 390 }, { x: 650, y: 390 }, { x: 680, y: 390 },
-      { x: 635, y: 360 }, { x: 665, y: 360 },
-      { x: 650, y: 330 }
-   
-    ];
-
+    //IGLU
     this.agregarBloqueIglu = () => {
-      if (this.bloques >= this.maxBloques) return;
-      const pos = this.igluPosiciones[this.bloques];
-      const bloque = this.add.image(pos.x, pos.y, 'bloque');
-      bloque.setScale(0.3);
-      this.bloques++;
+  while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+    this.bloques++;
+  }
+  if (this.bloques >= this.maxBloques) return;
+  const pos = this.igluPosiciones[this.bloques];
+  if (!pos) return; // Seguridad extra
+  const bloque = this.add.image(pos.x, pos.y, 'bloque');
+  bloque.setScale(0.13).setDepth(1);
+  this.bloques++;
 
-      if (this.bloques === this.maxBloques) {
-        console.log("¡Iglú completo! Nivel terminado.");
-        this.time.delayedCall(1000, () => {
-          this.scene.start('nivel2'); // o 'nivel3', si tienes más
-        });
-      };
-    }
+  if (this.bloques === this.maxBloques) {
+    // Cuando el iglú está completo, agrega la puerta
+    this.puertaPos = { x: 660, y: 140 }; // Usa la posición del null en la base
+    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+    this.puerta.setScale(0.20).setDepth(2);
+
+    // Habilita la comprobación para pasar de nivel en update()
+    this.iglúCompleto = true;
+  }
+}
+
   }
 
   update() {
@@ -244,9 +260,7 @@ crearPajaro(-150, filas[3].y - 50, 75);
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
-<<<<<<< HEAD
  
-=======
 
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x < -100 && pajaro.body.velocity.x < 0) {
@@ -256,6 +270,16 @@ crearPajaro(-150, filas[3].y - 50, 75);
       }
     });
 
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
+    //pasar de nivel si el iglú está completo y el jugador está sobre la puerta
+  if (this.iglúCompleto && this.puerta) {
+    const distancia = Phaser.Math.Distance.Between(
+      this.jugador.x, this.jugador.y,
+      this.puerta.x, this.puerta.y
+    );
+    if (distancia < 40) {
+      this.scene.start('nivel2');
+    }
+  }
+
   }
 }
