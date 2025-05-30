@@ -19,11 +19,7 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
-<<<<<<< HEAD
-
-=======
     this.scene.start('nivel2');
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -108,14 +104,6 @@ crearPajaro(850, filas[2].y - 50, -75);
 // Pájaro 4 (izquierda → derecha)
 crearPajaro(-150, filas[3].y - 50, 75);
 
-<<<<<<< HEAD
-
-
-
-    crearPajaro(850, 120, -100);
-    crearPajaro(-50, 200, 100);
-=======
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
 
 
     const permitirAtravesar = (jugador, plataforma) => {
@@ -154,11 +142,11 @@ crearPajaro(-150, filas[3].y - 50, 75);
       color: '#ffffff',
       backgroundColor: '#000000',
       padding: { x: 10, y: 5 }
-    }).setOrigin(1, 0).setInteractive();
+    }).setOrigin(1, 0).setInteractive().setDepth(3);
 
     pauseButton.on('pointerdown', () => {
-      this.scene.launch('pausamenu');
       this.scene.pause();
+      this.scene.launch('pausamenu', { escenaAnterior: this.scene.key });
     });
 
     this.bloques = 0;
@@ -183,7 +171,7 @@ crearPajaro(-150, filas[3].y - 50, 75);
       if (this.bloques === this.maxBloques) {
         console.log("¡Iglú completo! Nivel terminado.");
         this.time.delayedCall(1000, () => {
-          this.scene.start('nivel2'); // o 'nivel3', si tienes más
+          this.scene.start('nivel2'); 
         });
       };
     }
@@ -244,9 +232,6 @@ crearPajaro(-150, filas[3].y - 50, 75);
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
-<<<<<<< HEAD
- 
-=======
 
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x < -100 && pajaro.body.velocity.x < 0) {
@@ -256,6 +241,5 @@ crearPajaro(-150, filas[3].y - 50, 75);
       }
     });
 
->>>>>>> b32dabf5378b801c76ec3d86c7576983805f379c
   }
 }

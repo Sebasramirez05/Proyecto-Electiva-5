@@ -10,7 +10,6 @@ export class Menu extends Phaser.Scene {
     create(){
         const {width, height} = this.sys.game.config;
         this.add.image(width / 2, height / 2, "fondo").setDisplaySize(width, height);
-        this.add.image(width / 2, height / 2, "titulo").setDisplaySize(width, height);
 
         /*Boton de iniciar*/
         const startButton = this.add.text(width / 2, height / 1.5, 'Iniciar Juego', {

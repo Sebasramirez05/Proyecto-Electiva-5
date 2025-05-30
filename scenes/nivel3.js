@@ -1,6 +1,6 @@
-export class Nivel2 extends Phaser.Scene {
+export class Nivel3 extends Phaser.Scene {
   constructor() {
-    super({ key: 'nivel2' });
+    super({ key: 'nivel3' });
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
@@ -187,10 +187,8 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
     pauseButton.on('pointerdown', () => {
       this.scene.launch('pausamenu', { escenaAnterior: this.scene.key });
       this.scene.pause();  
-      this.scene.bringToTop('pausamenu');  // Asegura que se muestre por encima
+      this.scene.bringToTop('pausamenu');
     });
-
-
 
     this.bloques = 0;
     this.maxBloques = 14;
@@ -212,7 +210,7 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
       if (this.bloques === this.maxBloques) {
         console.log("¡Iglú completo! Nivel terminado.");
         this.time.delayedCall(1000, () => {
-          this.scene.start('Nivel3');
+          this.scene.start('menu');
         });
       }
     };
