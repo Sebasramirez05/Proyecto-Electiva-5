@@ -1,6 +1,6 @@
-export class Nivel2 extends Phaser.Scene {
+export class Nivel4 extends Phaser.Scene {
   constructor() {
-    super({ key: 'nivel2' });
+    super({ key: 'nivel4' });
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
@@ -17,6 +17,9 @@ export class Nivel2 extends Phaser.Scene {
     this.load.image('bloque', 'images/bloque.png');
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('pez', 'images/pez.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('cangrejo', 'images/cangrejo.png', {frameWidth: 32,frameHeight: 38});
+    this.load.spritesheet('golem_idle', 'images/golem_idle.png', { frameWidth: 90, frameHeight: 64 });
+    this.load.spritesheet('golem_walk', 'images/golem_walk.png', { frameWidth: 90, frameHeight: 64 });
   }
 
   create() {
@@ -44,64 +47,73 @@ export class Nivel2 extends Phaser.Scene {
     baseTransparente.body.checkCollision.down = false;
     this.platforms.add(baseTransparente);
 
-    this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
+this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
-    const filas = [
-      { y: 520, dir: 1 },
-      { y: 430, dir: -1 },
-      { y: 340, dir: 1 },
-      { y: 250, dir: -1 }
-    ];
+const filas = [
+  { y: 520, dir: 1 },
+  { y: 430, dir: -1 },
+  { y: 340, dir: 1 },
+  { y: 250, dir: -1 }
+];
 
-    const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
-    const espacio = anchoReal + 5;
+const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
+const espacio = anchoReal + 5;
 
-    this.barrerasMortales = [];
-    filas.forEach(fila => {
-      const cantidad = 6;
-      for (let i = 0; i < cantidad; i++) {
-        const x = 70 + espacio * i;
-        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
-          .setScale(0.3)
-          .setVelocityX(100 * fila.dir);
-        plataforma.setData('dir', fila.dir);
-        plataforma.body.checkCollision.up = true;
-        plataforma.body.checkCollision.down = false;
+this.barrerasMortales = [];
+filas.forEach(fila => {
+  // Creamos dos grupos (grupo 0 y grupo 1)
+  for (let grupo = 0; grupo < 2; grupo++) {
+    // El inicio en X será 70 para el primer grupo, y 70 + 300 para el segundo
+    const inicioXGrupo = 0 + grupo * 500;
+    // Se crean 3 plataformas por grupo
+    for (let i = 0; i < 3; i++) {
+      const x = inicioXGrupo + espacio * i;
+      const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
+        .setScale(0.45)
+        .setVelocityX(100 * fila.dir);
+      plataforma.setData('dir', fila.dir);
+      plataforma.body.checkCollision.up = true;
+      plataforma.body.checkCollision.down = false;
+      
+      const bodyHeight = plataforma.height * 0.3;
+      const offsetY = plataforma.height * 0.1;
+      plataforma.setSize(185, bodyHeight);
+      plataforma.setOffset(0, offsetY);
+    }
+  }
 
-        const bodyHeight = plataforma.height * 0.3;
-        const offsetY = plataforma.height * 0.1;
+  const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+  this.physics.add.existing(barrera, true);
+  barrera.body.checkCollision.up = true;
+  barrera.body.checkCollision.down = false;
+  this.barrerasMortales.push(barrera);
 
-        plataforma.setSize(160, bodyHeight);
-        plataforma.setOffset(0, offsetY);
-      }
-
-      const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
-      this.physics.add.existing(barrera, true);
-      barrera.body.checkCollision.up = true;
-      barrera.body.checkCollision.down = false;
-      this.barrerasMortales.push(barrera);
-
-      this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
-        const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
-        if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-          this.jugador.setTint(0xff0000);
-          this.gameoverImage.setVisible(true);
-          this.physics.pause();
-        }
-      });
-    });
+  this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+    const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+    if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+      this.jugador.setTint(0xff0000);
+      this.gameoverImage.setVisible(true);
+      this.physics.pause();
+    }
+  });
+});
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
     this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
     this.anims.create({ key: 'nadar', frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }), frameRate: 6, repeat: -1});
+    this.anims.create({ key: 'cangrejo_idle', frames: this.anims.generateFrameNumbers('cangrejo', { start: 0, end: 3 }), frameRate: 6, repeat: -1});
+    this.anims.create({ key: 'golem_idle', frames: this.anims.generateFrameNumbers('golem_idle', { start: 0, end: 5 }), frameRate: 6, repeat: -1});
+    this.anims.create({ key: 'golem_walk', frames: this.anims.generateFrameNumbers('golem_walk', { start: 0, end: 5 }), frameRate: 6, repeat: -1});
+
 
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
 
     const crearPajaro = (x, y, velocidadX) => {
       const pajaro = this.pajaros.create(x, y, 'pajaro');
+      pajaro.body.allowGravity = false;
       pajaro.play('volar');
       pajaro.setVelocityX(velocidadX);
       pajaro.setDepth(2);
@@ -111,10 +123,10 @@ export class Nivel2 extends Phaser.Scene {
       if (velocidadX < 0) pajaro.setFlipX(true);
     };
 
-    crearPajaro(-50, filas[3].y - 50, 85);
-    crearPajaro(-150, filas[3].y - 50, 85);
-    crearPajaro(800, filas[0].y - 50, -85);
-    crearPajaro(850, filas[0].y - 50, -85);
+    crearPajaro(950, filas[1].y - 50, -90);
+    crearPajaro(850, filas[1].y - 50, -90);
+    crearPajaro(-100, filas[2].y - 50, 90);
+    crearPajaro(0, filas[2].y - 50, 90);
 
     const crearPez = (x, y, velocidadX) => {
         const pez = this.peces.create(x, y, 'pez');
@@ -127,13 +139,51 @@ export class Nivel2 extends Phaser.Scene {
         pez.body.setSize(20, 20);
         pez.body.setOffset(13, 13);
         if (velocidadX < 0) pez.setFlipX(true);
-    }
+    };
 
-        crearPez(800, filas[1].y -50, -70);
-        crearPez(850, filas[1].y -50, -70);
-        crearPez(-50, filas[2].y -50, 70);
-        crearPez(-100, filas[2].y -50, 70);
-        crearPez(-150, filas[2].y -50, 70); 
+    crearPez(100, filas[0].y - 50, 80);
+    crearPez(200, filas[0].y - 50, 80); 
+
+
+
+    this.cangrejo = this.physics.add.group();
+    const crearCangrejo = (x, y, velocidadX) => {
+      const cangrejo = this.cangrejo.create(x, y, 'cangrejo');
+      cangrejo.body.allowGravity = false;
+      cangrejo.play('cangrejo_idle');
+      cangrejo.setVelocityX(velocidadX);
+      cangrejo.setDepth(2);
+      cangrejo.setScale(1.5);
+      cangrejo.body.setSize(23, 20);
+      cangrejo.body.setOffset(5, 8);
+      if (velocidadX < 0) cangrejo.setFlipX(true);
+    };
+
+    crearCangrejo(-50, filas[0].y - 50, 70);
+    crearCangrejo(-10, filas[0].y - 50, 70);
+    crearCangrejo(850, filas[3].y - 50, -70);
+    crearCangrejo(890, filas[3].y - 50, -70);
+
+    
+    this.golem = this.physics.add.group();
+    const crearGolem = (x, y, velocidadX) => {
+      const golem = this.golem.create(x, y, 'golem');
+      golem.body.allowGravity = true;
+      golem.play('golem_idle');
+      golem.setVelocityX(velocidadX);
+      golem.setDepth(2);
+      golem.setScale(2.3);
+      golem.body.setSize(38, 37);
+      golem.body.setOffset(26, 27);
+      if (velocidadX < 0) golem.setFlipX(true);
+    };
+
+    crearGolem(750, 85, 95);
+    this.physics.add.collider(this.golem, this.platforms);
+
+
+
+
 
     const permitirAtravesar = (jugador, plataforma) => {
       const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
@@ -170,6 +220,22 @@ export class Nivel2 extends Phaser.Scene {
       pez.disableBody(true, true); // Oculta y desactiva el pez
     });
 
+this.physics.add.overlap(this.jugador, this.golem, (jugador, golem) => {
+  // Detectar si el golem está por encima del jugador (tocando la cabeza)
+  const golemSobreJugador = golem.y + golem.height / 2 < jugador.y;
+
+  if (golemSobreJugador) {
+    // Golem tocó la parte superior del jugador, no se activa game over
+    console.log("Colisión en la cabeza: no se activa el game over");
+    return;
+  }
+
+  // En cualquier otro caso, muere
+  this.gameoverImage.setVisible(true);
+  jugador.setTint(0xff0000);
+  this.physics.pause();
+});
+
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
       color: '#ffffff',
@@ -180,10 +246,8 @@ export class Nivel2 extends Phaser.Scene {
     pauseButton.on('pointerdown', () => {
       this.scene.launch('pausamenu', { escenaAnterior: this.scene.key });
       this.scene.pause();  
-      this.scene.bringToTop('pausamenu');  // Asegura que se muestre por encima
+      this.scene.bringToTop('pausamenu');
     });
-
-
 
 this.bloques = 0;
     this.maxBloques = 12;
@@ -211,9 +275,9 @@ this.bloques = 0;
 ];
 
     this.agregarBloqueIglu = () => {
-  while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-    this.bloques++;
-  }
+         while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+        this.bloques++;
+ }
   if (this.bloques >= this.maxBloques) return;
   const pos = this.igluPosiciones[this.bloques];
   if (!pos) return; // Seguridad extra
@@ -285,6 +349,7 @@ this.bloques = 0;
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
+
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x > 900) {
         pajaro.x = -100;
@@ -292,23 +357,70 @@ this.bloques = 0;
         pajaro.x = 900;
       }
     });
+
     this.peces.children.iterate(pez => {
       if (!pez.active) return;
       if (pez.body.velocity.x > 0 && pez.x > 900) {
         pez.x = -100;
-      } else if (pez.body.velocity.x < 0 && pez.x < -100) {
+      } else if (pez.body.velocity.x < 0 && pez.x < -300) {
         pez.x = 900;
       }
     });
 
-        if (this.iglúCompleto && this.puerta) {
-      const distancia = Phaser.Math.Distance.Between(
-      this.jugador.x, this.jugador.y,
-      this.puerta.x, this.puerta.y
-      );
-      if (distancia < 40 && this.cursors.down.isDown) {
-      this.scene.start('nivel3');
+        this.cangrejo.children.iterate(cangrejo => {
+      if (cangrejo.x > 900) {
+        cangrejo.x = -100;
+      } else if (cangrejo.x < -100) {
+        cangrejo.x = 900;
       }
+    });
+
+    this.golem.children.iterate((golem) => {
+  if (!golem) return;
+
+  if (golem.body.velocity.x !== 0 && golem.anims.currentAnim.key !== 'golem_walk') {
+    golem.play('golem_walk', true);
+  } else if (golem.body.velocity.x === 0 && golem.anims.currentAnim.key !== 'golem_idle') {
+    golem.play('golem_idle', true);
+  }});
+
+  const velocidadGolem = 120;
+
+this.golem.children.iterate((golem) => {
+  if (!golem || !golem.body || !this.jugador) return;
+
+  const distanciaX = this.jugador.x - golem.x;
+  const distanciaY = Math.abs(this.jugador.y - golem.y);
+
+  // Condición para quedarse quieto: cerca en X y muy separado en Y
+  if (Math.abs(distanciaX) < 100 && distanciaY > 200) {
+    golem.setVelocityX(0);
+  } else {
+    // Perseguir al jugador
+    if (distanciaX < 0) {
+      golem.setVelocityX(-velocidadGolem);
+      golem.setFlipX(true);
+    } else {
+      golem.setVelocityX(velocidadGolem);
+      golem.setFlipX(false);
     }
+  }
+
+  if (this.iglúCompleto && this.puerta) {
+    const distancia = Phaser.Math.Distance.Between(
+    this.jugador.x, this.jugador.y,
+    this.puerta.x, this.puerta.y
+    );
+    if (distancia < 40 && this.cursors.down.isDown) {
+    this.scene.start('nivel2');
+    }
+  }
+});
+
+
+
+
+    
+
   }
 }

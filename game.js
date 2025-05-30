@@ -279,13 +279,12 @@ this.bloques = 0;
       }
     });
 
-    //pasar de nivel si el iglú está completo y el jugador está sobre la puerta
     if (this.iglúCompleto && this.puerta) {
       const distancia = Phaser.Math.Distance.Between(
       this.jugador.x, this.jugador.y,
       this.puerta.x, this.puerta.y
       );
-      if (distancia < 40) {
+      if (distancia < 40 && this.cursors.down.isDown) {
       this.scene.start('nivel2');
       }
     }

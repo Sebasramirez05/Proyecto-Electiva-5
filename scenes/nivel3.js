@@ -110,7 +110,6 @@ filas.forEach(fila => {
 
     const crearPajaro = (x, y, velocidadX) => {
       const pajaro = this.pajaros.create(x, y, 'pajaro');
-      console.log(pajaro);
       pajaro.body.allowGravity = false;
       pajaro.play('volar');
       pajaro.setVelocityX(velocidadX);
@@ -337,6 +336,16 @@ this.bloques = 0;
         cangrejo.x = 900;
       }
     });
+
+    if (this.iglúCompleto && this.puerta) {
+      const distancia = Phaser.Math.Distance.Between(
+      this.jugador.x, this.jugador.y,
+      this.puerta.x, this.puerta.y
+      );
+      if (distancia < 40 && this.cursors.down.isDown) {
+      this.scene.start('nivel4');
+      }
+    }
 
   }
 }
