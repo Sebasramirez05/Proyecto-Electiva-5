@@ -3,11 +3,15 @@ export class PausaMenu extends Phaser.Scene {
     super({ key: "pausamenu" });
   }
 
+    init(data) {
+      this.escenaAnterior = data.escenaAnterior;
+    }
+
   create() {
     const { width, height } = this.sys.game.config;
 
     // Fondo oscuro
-    this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0);
+    this.add.rectangle(0, 0, width, height, 0x000000, 0.6).setOrigin(0).setDepth(4);
 
     // Texto "Pausa"
     this.add.text(width / 2, height / 2 - 80, "Pausa", {
@@ -25,7 +29,7 @@ export class PausaMenu extends Phaser.Scene {
 
     continuar.on("pointerdown", () => {
       this.scene.stop();          
-      this.scene.resume("game");  
+      this.scene.resume(this.escenaAnterior);  
     });
 
     // Botón: Volver al menú
@@ -37,8 +41,13 @@ export class PausaMenu extends Phaser.Scene {
     }).setOrigin(0.5).setInteractive().setDepth(4);
 
     volverMenu.on("pointerdown", () => {
-      this.scene.stop("game");  
-      this.scene.start("menu");  
+      // Detener la escena anterior (el nivel en pausa)
+      this.scene.stop(this.escenaAnterior);
+      // Detener la escena de pausa
+      this.scene.stop("pausamenu");
+      // Iniciar la escena del menú
+      this.scene.start("menu");
     });
+
   }
 }

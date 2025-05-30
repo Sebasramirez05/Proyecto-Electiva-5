@@ -2,12 +2,13 @@ import { Game } from './game.js';
 import {Menu} from "./menu.js";
 import {PausaMenu} from "./pausamenu.js";
 import {Nivel2} from './scenes/nivel2.js';
+import {Nivel3} from './scenes/nivel3.js';
 
 const config = {
   type: Phaser.AUTO,
   width: 800,
   height: 580,
-  scene: [Menu, Game, PausaMenu, Nivel2],
+  scene: [Menu, Game, PausaMenu, Nivel2, Nivel3],
   physics: {
     default: 'arcade',
     arcade: {
