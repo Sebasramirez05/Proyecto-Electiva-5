@@ -7,6 +7,7 @@ export class Game extends Phaser.Scene{
     this.bloques = 0;
     this.maxBloques = 11;
     this.igluCompleto = false;
+    
     //IGLU
     this.igluPosiciones = [
   // Fila 1 (base) - ajusta la Y para que esté justo sobre la plataforma base
@@ -46,8 +47,16 @@ export class Game extends Phaser.Scene{
 
   create() {
 
-    
-    this.scene.start('nivel2');
+    //puntos
+    this.puntos = 0;
+      this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
+      fontSize: '32px',
+      fontStyle: "bold",
+      fontFamily: "Arial",
+      color: '#000000',
+      padding: { x: 10, y: 5 }
+    }).setOrigin(0, 0).setDepth(10);
+   
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -192,6 +201,9 @@ crearPajaro(-150, filas[3].y - 50, 75);
   const bloque = this.add.image(pos.x, pos.y, 'bloque');
   bloque.setScale(0.13).setDepth(1);
   this.bloques++;
+  // Suma puntos solo por bloques normales
+    this.puntos += 20;
+    this.puntosText.setText('Puntos: ' + this.puntos);
 
   if (this.bloques === this.maxBloques) {
     // Cuando el iglú está completo, agrega la puerta
