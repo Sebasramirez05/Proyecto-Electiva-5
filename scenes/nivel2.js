@@ -75,20 +75,20 @@ export class Nivel2 extends Phaser.Scene {
         plataforma.setOffset(0, offsetY);
       }
 
-       const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
-        this.physics.add.existing(barrera, true);
-        barrera.body.checkCollision.up = true;
-        barrera.body.checkCollision.down = false;
-        this.barrerasMortales.push(barrera);
+      const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+      this.physics.add.existing(barrera, true);
+      barrera.body.checkCollision.up = true;
+      barrera.body.checkCollision.down = false;
+      this.barrerasMortales.push(barrera);
 
-this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
-  const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
-  if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-    this.jugador.setTint(0xff0000);
-    this.gameoverImage.setVisible(true);
-    this.physics.pause();
-  }
-});
+      this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+        const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+        if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+          this.jugador.setTint(0xff0000);
+          this.gameoverImage.setVisible(true);
+          this.physics.pause();
+        }
+      });
     });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
@@ -185,30 +185,50 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
 
 
 
-    this.bloques = 0;
-    this.maxBloques = 14;
+this.bloques = 0;
+    this.maxBloques = 12;
+    this.igluCompleto = false;
+    //IGLU
     this.igluPosiciones = [
-      { x: 600, y: 450 }, { x: 630, y: 450 }, { x: 690, y: 450 }, { x: 720, y: 450 },
-      { x: 600, y: 420 }, { x: 630, y: 420 }, { x: 660, y: 420 }, { x: 690, y: 420 },
-      { x: 620, y: 390 }, { x: 650, y: 390 }, { x: 680, y: 390 },
-      { x: 635, y: 360 }, { x: 665, y: 360 },
-      { x: 650, y: 330 }
-    ];
+  // Fila 1 (base) 
+  { x: 600, y: 140 },
+  { x: 635, y: 140 },
+  null,
+  { x: 690, y: 140 },
+  { x: 725, y: 140 },
+
+  // Fila 2
+  { x: 620, y: 110 },
+  { x: 650, y: 110 },
+  { x: 680, y: 110 },
+  { x: 710, y: 110 },
+
+  // Fila 3
+  { x: 635, y: 80 },
+  { x: 665, y: 80 },
+  { x: 695, y: 80 },
+
+];
 
     this.agregarBloqueIglu = () => {
-      if (this.bloques >= this.maxBloques) return;
-      const pos = this.igluPosiciones[this.bloques];
-      const bloque = this.add.image(pos.x, pos.y, 'bloque');
-      bloque.setScale(0.3);
-      this.bloques++;
+  while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+    this.bloques++;
+  }
+  if (this.bloques >= this.maxBloques) return;
+  const pos = this.igluPosiciones[this.bloques];
+  if (!pos) return; // Seguridad extra
+  const bloque = this.add.image(pos.x, pos.y, 'bloque');
+  bloque.setScale(0.13).setDepth(1);
+  this.bloques++;
 
-      if (this.bloques === this.maxBloques) {
-        console.log("¡Iglú completo! Nivel terminado.");
-        this.time.delayedCall(1000, () => {
-          this.scene.start('Nivel3');
-        });
-      }
-    };
+  if (this.bloques === this.maxBloques) {
+    // Cuando el iglú está completo, agrega la puerta
+    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+    this.puerta.setScale(0.20).setDepth(2);
+    this.iglúCompleto = true;
+  }
+}
   }
 
   update() {

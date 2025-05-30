@@ -4,30 +4,7 @@ export class Game extends Phaser.Scene{
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
-    this.bloques = 0;
-    this.maxBloques = 11;
-    this.igluCompleto = false;
-    //IGLU
-    this.igluPosiciones = [
-  // Fila 1 (base) - ajusta la Y para que esté justo sobre la plataforma base
- { x: 600, y: 140 },
-  { x: 635, y: 140 },
-  null,
-  { x: 690, y: 140 },
-  { x: 725, y: 140 },
-
-  // Fila 2
-  { x: 620, y: 110 },
-  { x: 650, y: 110 },
-  { x: 670, y: 110 },
-  { x: 700, y: 110 },
-
-  // Fila 3
-  { x: 630, y: 80 },
-  { x: 660, y: 80 },
-  { x: 680, y: 80 },
-
-];
+    
 
   }
 
@@ -45,7 +22,7 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
-    this.scene.start('nivel3');
+    //this.scene.start('nivel3');
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -76,14 +53,16 @@ export class Game extends Phaser.Scene{
     ];
 
     const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
-    const espacio = anchoReal + 20;
+    const espacio = anchoReal + 5;
 
+    this.barrerasMortales = [];
     filas.forEach(fila => {
       const cantidad = 5;
-
       for (let i = 0; i < cantidad; i++) {
         const x = 100 + espacio * i;
-        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo').setScale(0.35).setVelocityX(100 * fila.dir);
+        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
+          .setScale(0.40)
+          .setVelocityX(100 * fila.dir);
         plataforma.setData('dir', fila.dir);
         plataforma.body.checkCollision.up = true;
         plataforma.body.checkCollision.down = false;
@@ -91,9 +70,24 @@ export class Game extends Phaser.Scene{
         const bodyHeight = plataforma.height * 0.3;
         const offsetY = plataforma.height * 0.1;
 
-        plataforma.setSize(175, bodyHeight);
+        plataforma.setSize(185, bodyHeight);
         plataforma.setOffset(0, offsetY);
       }
+
+      const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+      this.physics.add.existing(barrera, true);
+      barrera.body.checkCollision.up = true;
+      barrera.body.checkCollision.down = false;
+      this.barrerasMortales.push(barrera);
+
+      this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+        const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+        if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+          this.jugador.setTint(0xff0000);
+          this.gameoverImage.setVisible(true);
+          this.physics.pause();
+        }
+      });
     });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
@@ -126,8 +120,7 @@ export class Game extends Phaser.Scene{
 
 
 
-    crearPajaro(850, 120, -100);
-    crearPajaro(-50, 200, 100);
+
 
 
     const permitirAtravesar = (jugador, plataforma) => {
@@ -173,17 +166,30 @@ export class Game extends Phaser.Scene{
       this.scene.bringToTop('pausamenu');
     });
 
-    this.bloques = 0;
-    this.maxBloques = 14;
-
+this.bloques = 0;
+    this.maxBloques = 12;
+    this.igluCompleto = false;
+    //IGLU
     this.igluPosiciones = [
-      { x: 600, y: 450 }, { x: 630, y: 450 }, { x: 690, y: 450 }, { x: 720, y: 450 },
-      { x: 600, y: 420 }, { x: 630, y: 420 }, { x: 660, y: 420 }, { x: 690, y: 420 },
-      { x: 620, y: 390 }, { x: 650, y: 390 }, { x: 680, y: 390 },
-      { x: 635, y: 360 }, { x: 665, y: 360 },
-      { x: 650, y: 330 }
-   
-    ];
+  // Fila 1 (base) - ajusta la Y para que esté justo sobre la plataforma base
+  { x: 600, y: 140 },
+  { x: 635, y: 140 },
+  null,
+  { x: 690, y: 140 },
+  { x: 725, y: 140 },
+
+  // Fila 2
+  { x: 620, y: 110 },
+  { x: 650, y: 110 },
+  { x: 680, y: 110 },
+  { x: 710, y: 110 },
+
+  // Fila 3
+  { x: 635, y: 80 },
+  { x: 665, y: 80 },
+  { x: 695, y: 80 },
+
+];
 
     this.agregarBloqueIglu = () => {
   while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
@@ -198,7 +204,7 @@ export class Game extends Phaser.Scene{
 
   if (this.bloques === this.maxBloques) {
     // Cuando el iglú está completo, agrega la puerta
-    this.puertaPos = { x: 660, y: 140 }; // Usa la posición del null en la base
+    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
     this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
     this.puerta.setScale(0.20).setDepth(2);
 
