@@ -4,6 +4,31 @@ export class Game extends Phaser.Scene{
     this.jugador = null;
     this.cursors = null;
     this.plataformaActual = null;
+    this.bloques = 0;
+    this.maxBloques = 11;
+    this.igluCompleto = false;
+    //IGLU
+    this.igluPosiciones = [
+  // Fila 1 (base) - ajusta la Y para que esté justo sobre la plataforma base
+ { x: 600, y: 140 },
+  { x: 635, y: 140 },
+  null,
+  { x: 690, y: 140 },
+  { x: 725, y: 140 },
+
+  // Fila 2
+  { x: 620, y: 110 },
+  { x: 650, y: 110 },
+  { x: 670, y: 110 },
+  { x: 700, y: 110 },
+
+  // Fila 3
+  { x: 630, y: 80 },
+  { x: 660, y: 80 },
+  { x: 680, y: 80 },
+
+];
+
   }
 
   preload() {
@@ -15,6 +40,7 @@ export class Game extends Phaser.Scene{
     this.load.spritesheet('jump', 'images/Jump.png', { frameWidth: 96, frameHeight: 96 });
     this.load.image('hielo', 'images/plataforma_de_hielo-removebg-preview.png');
     this.load.image("bloque", "images/bloque.png");
+    this.load.image("puerta", "images/puerta.png");
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
   }
 
@@ -26,7 +52,7 @@ export class Game extends Phaser.Scene{
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
 
     this.jugador = this.physics.add.sprite(400, 80, 'jugador');
-    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(2).setSize(38, 45).setOffset(30, 50);
+    this.jugador.setCollideWorldBounds(false).setScale(1.5).setMaxVelocity(500, 800).setBounce(0).setDepth(3).setSize(38, 45).setOffset(30, 50);
 
     this.pajaros = this.physics.add.group({ allowGravity: false, immovable: true });
     this.platforms = this.physics.add.staticGroup();
@@ -99,6 +125,11 @@ export class Game extends Phaser.Scene{
 
 
 
+
+    crearPajaro(850, 120, -100);
+    crearPajaro(-50, 200, 100);
+
+
     const permitirAtravesar = (jugador, plataforma) => {
         const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
       if (tocandoDesdeArriba && this.cursors.down.isDown) {
@@ -132,8 +163,7 @@ export class Game extends Phaser.Scene{
 
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
-      color: '#ffffff',
-      backgroundColor: '#000000',
+      color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(1, 0).setInteractive().setDepth(3);
 
@@ -156,20 +186,27 @@ export class Game extends Phaser.Scene{
     ];
 
     this.agregarBloqueIglu = () => {
-      if (this.bloques >= this.maxBloques) return;
-      const pos = this.igluPosiciones[this.bloques];
-      const bloque = this.add.image(pos.x, pos.y, 'bloque');
-      bloque.setScale(0.3);
-      this.bloques++;
-
-      if (this.bloques === this.maxBloques) {
-        console.log("¡Iglú completo! Nivel terminado.");
-        this.time.delayedCall(1000, () => {
-          this.scene.start('nivel2'); 
-        });
-      };
-    }
+  while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+    this.bloques++;
   }
+  if (this.bloques >= this.maxBloques) return;
+  const pos = this.igluPosiciones[this.bloques];
+  if (!pos) return; // Seguridad extra
+  const bloque = this.add.image(pos.x, pos.y, 'bloque');
+  bloque.setScale(0.13).setDepth(1);
+  this.bloques++;
+
+  if (this.bloques === this.maxBloques) {
+    // Cuando el iglú está completo, agrega la puerta
+    this.puertaPos = { x: 660, y: 140 }; // Usa la posición del null en la base
+    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+    this.puerta.setScale(0.20).setDepth(2);
+
+    // Habilita la comprobación para pasar de nivel en update()
+    this.iglúCompleto = true;
+  }
+}
+}
 
   update() {
     // Mover al jugador con la plataforma si está parado sobre ella
@@ -226,6 +263,7 @@ export class Game extends Phaser.Scene{
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
+ 
 
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x < -100 && pajaro.body.velocity.x < 0) {
@@ -235,5 +273,15 @@ export class Game extends Phaser.Scene{
       }
     });
 
+    //pasar de nivel si el iglú está completo y el jugador está sobre la puerta
+    if (this.iglúCompleto && this.puerta) {
+      const distancia = Phaser.Math.Distance.Between(
+      this.jugador.x, this.jugador.y,
+      this.puerta.x, this.puerta.y
+      );
+      if (distancia < 40) {
+      this.scene.start('nivel2');
+      }
+    }
   }
 }
