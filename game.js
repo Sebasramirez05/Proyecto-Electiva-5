@@ -46,13 +46,36 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
+    //temporizador
+    this.tiempoRestante = 50;
+this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
+  fontSize: '28px',
+  fontFamily: 'SnowForSanta',
+  color: '#000000',
+  padding: { x: 10, y: 5 }
+}).setOrigin(0.5, 0).setDepth(10);
+
+this.timedEvent = this.time.addEvent({
+  delay: 1000,
+  callback: () => {
+    this.tiempoRestante--;
+    this.timerText.setText('Tiempo: ' + this.tiempoRestante);
+    if (this.tiempoRestante <= 0) {
+      this.gameoverImage.setVisible(true);
+      this.jugador.setTint(0xff0000);
+      this.physics.pause();
+      this.timedEvent.remove();
+    }
+  },
+  callbackScope: this,
+  loop: true
+});
 
     //puntos
     this.puntos = 0;
       this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
-      fontSize: '32px',
-      fontStyle: "bold",
-      fontFamily: "Arial",
+      fontSize: '28px',
+      fontFamily: 'SnowForSanta',
       color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(0, 0).setDepth(10);
@@ -181,6 +204,7 @@ crearPajaro(-150, filas[3].y - 50, 75);
 
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
+      fontFamily: "SnowForSanta",
       color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(1, 0).setInteractive().setDepth(3);
