@@ -95,13 +95,7 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
     this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
-
-    this.anims.create({
-      key: 'nadar',
-      frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }),
-      frameRate: 6,
-      repeat: -1
-    });
+    this.anims.create({ key: 'nadar', frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }), frameRate: 6, repeat: -1});
 
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
@@ -119,28 +113,27 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
 
     crearPajaro(-50, filas[3].y - 50, 85);
     crearPajaro(-150, filas[3].y - 50, 85);
-    crearPajaro(-100, filas[0].y - 50, -85);
-    crearPajaro(-200, filas[0].y - 50, -85);
+    crearPajaro(800, filas[0].y - 50, -85);
+    crearPajaro(850, filas[0].y - 50, -85);
 
-
-    const filasPeces = [
-      { y: filas[1].y - 50, dir: 1, cantidad: 3 },  // Segunda fila más baja
-      { y: filas[2].y - 50, dir: -1, cantidad: 2 }  // Fila superior a esa
-    ];
-
-    filasPeces.forEach(fila => {
-      for (let i = 0; i < fila.cantidad; i++) {
-        const x = fila.dir > 0 ? -100 - i * 100 : 900 + i * 100;
-        const pez = this.peces.create(x, fila.y, 'pez');
+    const crearPez = (x, y, velocidadX) => {
+        const pez = this.peces.create(x, y, 'pez');
+        pez.body.allowGravity = false;
         pez.play('nadar');
-        pez.setVelocityX(fila.dir * 60);
+        pez.setVelocityX(velocidadX);
         pez.setScale(1.2);
         pez.setDepth(1);
-        pez.setFlipX(fila.dir < 0);
+        pez.setFlipX(velocidadX < 0);
         pez.body.setSize(20, 20);
         pez.body.setOffset(13, 13);
-      }
-    });
+        if (velocidadX < 0) pez.setFlipX(true);
+    }
+
+        crearPez(800, filas[1].y -50, -70);
+        crearPez(850, filas[1].y -50, -70);
+        crearPez(-50, filas[2].y -50, 70);
+        crearPez(-100, filas[2].y -50, 70);
+        crearPez(-150, filas[2].y -50, 70); 
 
     const permitirAtravesar = (jugador, plataforma) => {
       const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
@@ -272,13 +265,13 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
-
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x > 900) {
         pajaro.x = -100;
+      } else if (pajaro.x < -100) {
+        pajaro.x = 900;
       }
     });
-
     this.peces.children.iterate(pez => {
       if (!pez.active) return;
       if (pez.body.velocity.x > 0 && pez.x > 900) {

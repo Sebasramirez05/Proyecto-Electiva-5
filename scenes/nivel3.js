@@ -17,6 +17,8 @@ export class Nivel3 extends Phaser.Scene {
     this.load.image('bloque', 'images/bloque.png');
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
     this.load.spritesheet('pez', 'images/pez.png', { frameWidth: 48, frameHeight: 48 });
+    this.load.spritesheet('cangrejo', 'images/cangrejo.png', {frameWidth: 32,frameHeight: 38});
+
   }
 
   create() {
@@ -44,70 +46,72 @@ export class Nivel3 extends Phaser.Scene {
     baseTransparente.body.checkCollision.down = false;
     this.platforms.add(baseTransparente);
 
-    this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
+this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
-    const filas = [
-      { y: 520, dir: 1 },
-      { y: 430, dir: -1 },
-      { y: 340, dir: 1 },
-      { y: 250, dir: -1 }
-    ];
+const filas = [
+  { y: 520, dir: 1 },
+  { y: 430, dir: -1 },
+  { y: 340, dir: 1 },
+  { y: 250, dir: -1 }
+];
 
-    const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
-    const espacio = anchoReal + 5;
+const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
+const espacio = anchoReal + 5;
 
-    this.barrerasMortales = [];
-    filas.forEach(fila => {
-      const cantidad = 6;
-      for (let i = 0; i < cantidad; i++) {
-        const x = 70 + espacio * i;
-        const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
-          .setScale(0.3)
-          .setVelocityX(100 * fila.dir);
-        plataforma.setData('dir', fila.dir);
-        plataforma.body.checkCollision.up = true;
-        plataforma.body.checkCollision.down = false;
-
-        const bodyHeight = plataforma.height * 0.3;
-        const offsetY = plataforma.height * 0.1;
-
-        plataforma.setSize(160, bodyHeight);
-        plataforma.setOffset(0, offsetY);
-      }
-
-       const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
-        this.physics.add.existing(barrera, true);
-        barrera.body.checkCollision.up = true;
-        barrera.body.checkCollision.down = false;
-        this.barrerasMortales.push(barrera);
-
-this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
-  const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
-  if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-    this.jugador.setTint(0xff0000);
-    this.gameoverImage.setVisible(true);
-    this.physics.pause();
+this.barrerasMortales = [];
+filas.forEach(fila => {
+  // Creamos dos grupos (grupo 0 y grupo 1)
+  for (let grupo = 0; grupo < 2; grupo++) {
+    // El inicio en X será 70 para el primer grupo, y 70 + 300 para el segundo
+    const inicioXGrupo = 0 + grupo * 500;
+    // Se crean 3 plataformas por grupo
+    for (let i = 0; i < 3; i++) {
+      const x = inicioXGrupo + espacio * i;
+      const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
+        .setScale(0.45)
+        .setVelocityX(100 * fila.dir);
+      plataforma.setData('dir', fila.dir);
+      plataforma.body.checkCollision.up = true;
+      plataforma.body.checkCollision.down = false;
+      
+      const bodyHeight = plataforma.height * 0.3;
+      const offsetY = plataforma.height * 0.1;
+      plataforma.setSize(160, bodyHeight);
+      plataforma.setOffset(0, offsetY);
+    }
   }
+
+  const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+  this.physics.add.existing(barrera, true);
+  barrera.body.checkCollision.up = true;
+  barrera.body.checkCollision.down = false;
+  this.barrerasMortales.push(barrera);
+
+  this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+    const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+    if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+      this.jugador.setTint(0xff0000);
+      this.gameoverImage.setVisible(true);
+      this.physics.pause();
+    }
+  });
 });
-    });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
     this.anims.create({ key: 'jump', frames: this.anims.generateFrameNumbers('jump', { start: 0, end: 4 }), frameRate: 8, repeat: 0 });
     this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
+    this.anims.create({ key: 'nadar', frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }), frameRate: 6, repeat: -1});
+    this.anims.create({ key: 'cangrejo_idle', frames: this.anims.generateFrameNumbers('cangrejo', { start: 0, end: 3 }), frameRate: 6, repeat: -1});
 
-    this.anims.create({
-      key: 'nadar',
-      frames: this.anims.generateFrameNumbers('pez', { start: 0, end: 3 }),
-      frameRate: 6,
-      repeat: -1
-    });
 
     this.jugador.play('idle');
     this.cursors = this.input.keyboard.createCursorKeys();
 
     const crearPajaro = (x, y, velocidadX) => {
       const pajaro = this.pajaros.create(x, y, 'pajaro');
+      console.log(pajaro);
+      pajaro.body.allowGravity = false;
       pajaro.play('volar');
       pajaro.setVelocityX(velocidadX);
       pajaro.setDepth(2);
@@ -117,30 +121,48 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
       if (velocidadX < 0) pajaro.setFlipX(true);
     };
 
-    crearPajaro(-50, filas[3].y - 50, 85);
-    crearPajaro(-150, filas[3].y - 50, 85);
-    crearPajaro(-100, filas[0].y - 50, -85);
-    crearPajaro(-200, filas[0].y - 50, -85);
+    crearPajaro(950, filas[1].y - 50, -90);
+    crearPajaro(850, filas[1].y - 50, -90);
+    crearPajaro(-100, filas[2].y - 50, 90);
+    crearPajaro(0, filas[2].y - 50, 90);
 
-
-    const filasPeces = [
-      { y: filas[1].y - 50, dir: 1, cantidad: 3 },  // Segunda fila más baja
-      { y: filas[2].y - 50, dir: -1, cantidad: 2 }  // Fila superior a esa
-    ];
-
-    filasPeces.forEach(fila => {
-      for (let i = 0; i < fila.cantidad; i++) {
-        const x = fila.dir > 0 ? -100 - i * 100 : 900 + i * 100;
-        const pez = this.peces.create(x, fila.y, 'pez');
+    const crearPez = (x, y, velocidadX) => {
+        const pez = this.peces.create(x, y, 'pez');
+        pez.body.allowGravity = false;
         pez.play('nadar');
-        pez.setVelocityX(fila.dir * 60);
+        pez.setVelocityX(velocidadX);
         pez.setScale(1.2);
         pez.setDepth(1);
-        pez.setFlipX(fila.dir < 0);
+        pez.setFlipX(velocidadX < 0);
         pez.body.setSize(20, 20);
         pez.body.setOffset(13, 13);
-      }
-    });
+        if (velocidadX < 0) pez.setFlipX(true);
+    };
+
+    crearPez(100, filas[0].y - 50, 80);
+    crearPez(200, filas[0].y - 50, 80); 
+
+
+
+    this.cangrejo = this.physics.add.group();
+    const crearCangrejo = (x, y, velocidadX) => {
+      const cangrejo = this.cangrejo.create(x, y, 'cangrejo');
+      cangrejo.body.allowGravity = false;
+      cangrejo.play('cangrejo_idle');
+      cangrejo.setVelocityX(velocidadX);
+      cangrejo.setDepth(2);
+      cangrejo.setScale(1.5);
+      cangrejo.body.setSize(23, 20);
+      cangrejo.body.setOffset(5, 8);
+      if (velocidadX < 0) cangrejo.setFlipX(true);
+    };
+
+    crearCangrejo(-50, filas[0].y - 50, 70);
+    crearCangrejo(-10, filas[0].y - 50, 70);
+    crearCangrejo(850, filas[3].y - 50, -70);
+    crearCangrejo(890, filas[3].y - 50, -70);
+
+
 
     const permitirAtravesar = (jugador, plataforma) => {
       const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
@@ -274,6 +296,8 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x > 900) {
         pajaro.x = -100;
+      } else if (pajaro.x < -100) {
+        pajaro.x = 900;
       }
     });
 
@@ -281,9 +305,18 @@ this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
       if (!pez.active) return;
       if (pez.body.velocity.x > 0 && pez.x > 900) {
         pez.x = -100;
-      } else if (pez.body.velocity.x < 0 && pez.x < -100) {
+      } else if (pez.body.velocity.x < 0 && pez.x < -300) {
         pez.x = 900;
       }
     });
+
+        this.cangrejo.children.iterate(cangrejo => {
+      if (cangrejo.x > 900) {
+        cangrejo.x = -100;
+      } else if (cangrejo.x < -100) {
+        cangrejo.x = 900;
+      }
+    });
+
   }
 }

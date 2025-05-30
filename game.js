@@ -19,7 +19,7 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
-    this.scene.start('nivel2');
+    this.scene.start('nivel3');
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -79,30 +79,23 @@ export class Game extends Phaser.Scene{
     this.anims.create({ key: 'volar', frames: this.anims.generateFrameNumbers('pajaro', { start: 0, end: 5 }), frameRate: 10, repeat: -1 });
 
 
-const crearPajaro = (x, y, velocidadX) => {
-  const pajaro = this.pajaros.create(x, y, 'pajaro');
-  pajaro.play('volar');
-  pajaro.setVelocityX(velocidadX);
-  pajaro.setDepth(2);
-  pajaro.setScale(1);
-  pajaro.body.setSize(23, 20);
-  pajaro.body.setOffset(5, 8);
-  if (velocidadX < 0) {
-    pajaro.setFlipX(true);
-  }
-};
+    const crearPajaro = (x, y, velocidadX) => {
+      const pajaro = this.pajaros.create(x, y, 'pajaro');
+      pajaro.play('volar');
+      pajaro.setVelocityX(velocidadX);
+      pajaro.setDepth(2);
+      pajaro.setScale(1);
+      pajaro.body.setSize(23, 20);
+      pajaro.body.setOffset(5, 8);
+      if (velocidadX < 0) {
+        pajaro.setFlipX(true);
+      }
+    };
 
-// Pájaro 1 (izquierda → derecha)
-crearPajaro(-50, filas[0].y - 50, 75);
-
-// Pájaro 2 (izquierda → derecha)
-crearPajaro(-100, filas[1].y - 50, 75);
-
-// Pájaro 3 (derecha → izquierda)
-crearPajaro(850, filas[2].y - 50, -75);
-
-// Pájaro 4 (izquierda → derecha)
-crearPajaro(-150, filas[3].y - 50, 75);
+    crearPajaro(-50, filas[0].y - 50, 75);
+    crearPajaro(-100, filas[1].y - 50, 75);
+    crearPajaro(850, filas[2].y - 50, -75);
+    crearPajaro(-150, filas[3].y - 50, 75);
 
 
 
@@ -145,8 +138,9 @@ crearPajaro(-150, filas[3].y - 50, 75);
     }).setOrigin(1, 0).setInteractive().setDepth(3);
 
     pauseButton.on('pointerdown', () => {
-      this.scene.pause();
       this.scene.launch('pausamenu', { escenaAnterior: this.scene.key });
+      this.scene.pause();  
+      this.scene.bringToTop('pausamenu');
     });
 
     this.bloques = 0;
