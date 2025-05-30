@@ -22,6 +22,40 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
+    //temporizador
+    this.tiempoRestante = 50;
+this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
+  fontSize: '28px',
+  fontFamily: 'SnowForSanta',
+  color: '#000000',
+  padding: { x: 10, y: 5 }
+}).setOrigin(0.5, 0).setDepth(10);
+
+this.timedEvent = this.time.addEvent({
+  delay: 1000,
+  callback: () => {
+    this.tiempoRestante--;
+    this.timerText.setText('Tiempo: ' + this.tiempoRestante);
+    if (this.tiempoRestante <= 0) {
+      this.gameoverImage.setVisible(true);
+      this.jugador.setTint(0xff0000);
+      this.physics.pause();
+      this.timedEvent.remove();
+    }
+  },
+  callbackScope: this,
+  loop: true
+});
+
+    //puntos
+    this.puntos = 0;
+      this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
+      fontSize: '28px',
+      fontFamily: 'SnowForSanta',
+      color: '#000000',
+      padding: { x: 10, y: 5 }
+    }).setOrigin(0, 0).setDepth(10);
+   
     //this.scene.start('nivel3');
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
@@ -156,6 +190,7 @@ export class Game extends Phaser.Scene{
 
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
+      fontFamily: "SnowForSanta",
       color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(1, 0).setInteractive().setDepth(3);
@@ -201,6 +236,9 @@ this.bloques = 0;
   const bloque = this.add.image(pos.x, pos.y, 'bloque');
   bloque.setScale(0.13).setDepth(1);
   this.bloques++;
+  // Suma puntos solo por bloques normales
+    this.puntos += 20;
+    this.puntosText.setText('Puntos: ' + this.puntos);
 
   if (this.bloques === this.maxBloques) {
     // Cuando el iglú está completo, agrega la puerta

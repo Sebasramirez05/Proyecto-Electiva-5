@@ -16,12 +16,14 @@ export class PausaMenu extends Phaser.Scene {
     // Texto "Pausa"
     this.add.text(width / 2, height / 2 - 80, "Pausa", {
       fontSize: "48px",
+      fontFamily:"SnowForSanta",
       color: "#ffffff"
     }).setOrigin(0.5).setDepth(4);
 
     // Botón: Continuar
     const continuar = this.add.text(width / 2, height / 2 - 10, "Continuar", {
       fontSize: "28px",
+      fontFamily:"SnowForSanta",
       color: "#00ff00",
       backgroundColor: "#000000",
       padding: { x: 20, y: 10 }
@@ -33,8 +35,9 @@ export class PausaMenu extends Phaser.Scene {
     });
 
     // Botón: Volver al menú
-    const volverMenu = this.add.text(width / 2, height / 2 + 50, "Volver al menú", {
+    const volverMenu = this.add.text(width / 2, height / 2 + 50, "Volver al menu", {
       fontSize: "28px",
+      fontFamily:"SnowForSanta",
       color: "#ff0000",
       backgroundColor: "#000000",
       padding: { x: 20, y: 10 }

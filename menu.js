@@ -13,9 +13,8 @@ export class Menu extends Phaser.Scene {
 
         /*Boton de iniciar*/
         const startButton = this.add.text(width / 2, height / 1.5, 'Iniciar Juego', {
-            fontFamily: "Arial",
-            fontStyle: "bold",
             fontSize: '32px',
+            fontFamily: "SnowForSanta",
             color: '#0E2148',
             backgroundColor: '#7F8CAA',
             padding: { x: 20, y: 10 }
