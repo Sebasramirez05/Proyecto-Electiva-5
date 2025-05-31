@@ -233,8 +233,11 @@ export class Nivel3 extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
-      pez.disableBody(true, true); // Oculta y desactiva el pez
-    });
+      pez.disableBody(true, true);// Oculta y desactiva el pez
+      //punto de peces
+       this.puntos += 100;
+    this.puntosText.setText('Puntos: ' + this.puntos);
+    }, null, this); 
 
     this.physics.add.overlap(this.jugador, this.cangrejo, (jugador, cangrejo) => {
       this.gameoverImage.setVisible(true);
@@ -280,9 +283,9 @@ export class Nivel3 extends Phaser.Scene {
 
     ];
 
-    this.agregarBloqueIglu = () => {
+     this.agregarBloqueIglu = () => {
       while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-        this.bloques++;
+      this.bloques++;
       }
       if (this.bloques >= this.maxBloques) return;
       const pos = this.igluPosiciones[this.bloques];
@@ -290,9 +293,7 @@ export class Nivel3 extends Phaser.Scene {
       const bloque = this.add.image(pos.x, pos.y, 'bloque');
       bloque.setScale(0.13).setDepth(1);
       this.bloques++;
-    }
-
-    // Suma puntos solo por bloques normales
+      // Suma puntos solo por bloques normales
       this.puntos += 20;
       this.puntosText.setText('Puntos: ' + this.puntos);
 
@@ -321,6 +322,7 @@ export class Nivel3 extends Phaser.Scene {
       }
     }
   }
+}
 
   update() {
     if (this.plataformaActual &&

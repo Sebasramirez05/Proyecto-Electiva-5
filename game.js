@@ -22,9 +22,7 @@ export class Game extends Phaser.Scene{
   create() {
     //temporizador
     this.tiempoRestante = 60;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {},
-    this.tiempoRestante = 50);
-    this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
+    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
     fontFamily: 'SnowForSanta',
     color: '#000000',
@@ -33,7 +31,6 @@ export class Game extends Phaser.Scene{
 
     this.timedEvent = this.time.addEvent({
       delay: 1500,
-      delay: 1000,
       callback: () => {
         this.tiempoRestante--;
         this.timerText.setText('Tiempo: ' + this.tiempoRestante);
@@ -58,7 +55,7 @@ export class Game extends Phaser.Scene{
     }).setOrigin(0, 0).setDepth(10);
    
     
-    this.scene.start('nivel5');
+    this.scene.start('nivel4');
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  

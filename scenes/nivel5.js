@@ -252,7 +252,10 @@ export class Nivel5 extends Phaser.Scene {
 
         this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
         pez.disableBody(true, true); // Oculta y desactiva el pez
-        });
+        //punto de peces
+        this.puntos += 100;
+        this.puntosText.setText('Puntos: ' + this.puntos);
+        }, null, this);
 
         this.physics.add.overlap(this.jugador, this.cangrejo, (jugador, cangrejo) => {
         this.gameoverImage.setVisible(true);
@@ -308,39 +311,45 @@ export class Nivel5 extends Phaser.Scene {
 
         ];
 
-        this.agregarBloqueIglu = () => {
-            while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-                this.bloques++;
-            }
-            if (this.bloques >= this.maxBloques) return;
-            const pos = this.igluPosiciones[this.bloques];
-            if (!pos) return; 
-            const bloque = this.add.image(pos.x, pos.y, 'bloque');
-            bloque.setScale(0.13).setDepth(1);
-            this.bloques++;
-
-            if (this.bloques === this.maxBloques) {
-                // Cuando el iglú está completo, agrega la puerta
-                this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
-                this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-                this.puerta.setScale(0.20).setDepth(2);
-                this.iglúCompleto = true;
-                 // Agrega los puntos según el tiempo restante
-            if (this.iglúCompleto) {
-                this.puntos += this.tiempoRestante * 10;
-                this.puntosText.setText('Puntos: ' + this.puntos);
-}
-            if (this.bloques === this.maxBloques) {
-                // Cuando el iglú está completo, agrega la puerta
-                this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
-                this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-                this.puerta.setScale(0.20).setDepth(2);
-
-                // Habilita la comprobación para pasar de nivel en update()
-                this.iglúCompleto = true;
+          this.agregarBloqueIglu = () => {
+      while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+      this.bloques++;
       }
-            }
-        }
+      if (this.bloques >= this.maxBloques) return;
+      const pos = this.igluPosiciones[this.bloques];
+      if (!pos) return; // Seguridad extra
+      const bloque = this.add.image(pos.x, pos.y, 'bloque');
+      bloque.setScale(0.13).setDepth(1);
+      this.bloques++;
+      // Suma puntos solo por bloques normales
+      this.puntos += 20;
+      this.puntosText.setText('Puntos: ' + this.puntos);
+
+  if (this.bloques === this.maxBloques) {
+    // Cuando el iglú está completo, agrega la puerta
+    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+    this.puerta.setScale(0.20).setDepth(2);
+
+    // Habilita la comprobación para pasar de nivel en update()
+    this.iglúCompleto = true;
+
+     // Agrega los puntos según el tiempo restante
+    if (this.iglúCompleto) {
+    this.puntos += this.tiempoRestante * 10;
+    this.puntosText.setText('Puntos: ' + this.puntos);
+}
+      if (this.bloques === this.maxBloques) {
+        // Cuando el iglú está completo, agrega la puerta
+        this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+        this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+        this.puerta.setScale(0.20).setDepth(2);
+
+        // Habilita la comprobación para pasar de nivel en update()
+        this.iglúCompleto = true;
+      }
+    }
+  }
     }
 
     update() {
