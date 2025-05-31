@@ -11,7 +11,7 @@ export class Menu extends Phaser.Scene {
         if (!window.GameState) {
             window.GameState = {
                 lives: 3,
-                score: 0
+                puntos: 0
             };
         }
 

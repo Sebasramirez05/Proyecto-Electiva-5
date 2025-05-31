@@ -45,10 +45,7 @@ export class Nivel3 extends Phaser.Scene {
       }
     };
 
-
-
-
- //temporizador
+    //temporizador
     this.tiempoRestante = 60;
     this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
@@ -72,17 +69,39 @@ export class Nivel3 extends Phaser.Scene {
       callbackScope: this,
       loop: true
     });
-    //puntos
-     this.puntos = 0;
-      this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
+
+    // Puntos
+    // Inicializar puntos a partir del estado global o usar 0 por defecto
+    window.GameState = window.GameState || {};
+    let puntos = window.GameState.puntos || 0;
+    window.GameState.puntos = puntos;
+
+    window.GameState.puntos = window.GameState.puntos !== undefined ? window.GameState.puntos : 0;
+    // Almacenar los puntos en el registry
+    this.registry.set('puntosTotales', puntos);
+
+    // Crear el objeto de texto para mostrar los puntos
+    this.puntosText = this.add.text(30, 20, 'Puntos: ' + puntos, {
       fontSize: '28px',
       fontFamily: 'SnowForSanta',
       color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(0, 0).setDepth(10);
-    this.puntos = this.registry.get('puntosTotales') || 0;
-    console.log("Puntos cargados:", this.puntos);
-    this.puntosText.setText('Puntos: ' + this.puntos);
+
+    console.log("Puntos cargados:", puntos);
+
+    // Función encapsulada para actualizar los puntos
+    this.updatePuntos = (nuevoValor) => {
+      if (nuevoValor === undefined) {
+        console.error("updatePuntos fue llamada sin un valor definido");
+        return;
+      }
+      // Actualiza el estado global y el texto
+      window.GameState.puntos = nuevoValor;
+      this.registry.set('puntosTotales', nuevoValor);
+      this.puntosText.setText('Puntos: ' + nuevoValor);
+      console.log("Puntos actualizados:", nuevoValor);
+    };
 
 
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
@@ -256,8 +275,8 @@ export class Nivel3 extends Phaser.Scene {
     this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
       pez.disableBody(true, true);// Oculta y desactiva el pez
       //punto de peces
-       this.puntos += 100;
-    this.puntosText.setText('Puntos: ' + this.puntos);
+      puntos = window.GameState.puntos + 100;
+      this.updatePuntos(puntos);
     }, null, this); 
 
     this.physics.add.overlap(this.jugador, this.cangrejo, (jugador, cangrejo) => {
@@ -321,8 +340,8 @@ export class Nivel3 extends Phaser.Scene {
             this.iglúCompleto = true;
         }
       // Suma puntos solo por bloques normales
-      this.puntos += 20;
-      this.puntosText.setText('Puntos: ' + this.puntos);
+      puntos = window.GameState.puntos + 10;
+      this.updatePuntos(puntos);
 
   if (this.bloques === this.maxBloques) {
     // Cuando el iglú está completo, agrega la puerta
@@ -333,16 +352,12 @@ export class Nivel3 extends Phaser.Scene {
     // Habilita la comprobación para pasar de nivel en update()
     this.iglúCompleto = true;
 
-     // Agrega los puntos según el tiempo restante
-    if (this.iglúCompleto) {
-    this.puntos += this.tiempoRestante * 10;
-    this.puntosText.setText('Puntos: ' + this.puntos);
-}
+
       if (this.bloques === this.maxBloques) {
         // Cuando el iglú está completo, agrega la puerta
         this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
         this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-        this.puerta.setScale(0.20).setDepth(2);
+        this.puerta.setScale(0.20).setDepth(1);
 
         // Habilita la comprobación para pasar de nivel en update()
         this.iglúCompleto = true;
@@ -435,7 +450,9 @@ export class Nivel3 extends Phaser.Scene {
       this.puerta.x, this.puerta.y
       );
       if (distancia < 40 && this.cursors.down.isDown) {
-      this.scene.start('nivel4');
+        this.puntos = window.GameState.puntos + (this.tiempoRestante * 10);
+        this.updatePuntos(this.puntos);
+        this.scene.start('nivel4');
       }
     }
 

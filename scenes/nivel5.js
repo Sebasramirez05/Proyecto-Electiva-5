@@ -34,7 +34,11 @@ export class Nivel5 extends Phaser.Scene {
         this.loseLife = (jugador) => {
             window.GameState.lives--;
             this.lifeText.setText('Vidas: ' + window.GameState.lives);
-      
+            const golemSprite = this.golem.getFirstAlive(); 
+            if (golemSprite) {
+                golemSprite.setPosition(780, 85);
+            }
+
             if (window.GameState.lives > 0) {
                 jugador.setPosition(this.respawnPoint.x, this.respawnPoint.y);
                 jugador.clearTint();
@@ -46,42 +50,63 @@ export class Nivel5 extends Phaser.Scene {
             }
         };
 
-        //temporizador
-    this.tiempoRestante = 60;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
-    fontSize: '28px',
-    fontFamily: 'SnowForSanta',
-    color: '#000000',
-    padding: { x: 10, y: 5 }
-    }).setOrigin(0.5, 0).setDepth(10);
+            //temporizador
+        this.tiempoRestante = 60;
+        this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
+        fontSize: '28px',
+        fontFamily: 'SnowForSanta',
+        color: '#000000',
+        padding: { x: 10, y: 5 }
+        }).setOrigin(0.5, 0).setDepth(10);
 
-    this.timedEvent = this.time.addEvent({
-      delay: 1500,
-      callback: () => {
-        this.tiempoRestante--;
-        this.timerText.setText('Tiempo: ' + this.tiempoRestante);
-        if (this.tiempoRestante <= 0) {
-          this.gameoverImage.setVisible(true);
-          this.jugador.setTint(0xff0000);
-          this.physics.pause();
-          this.timedEvent.remove();
+        this.timedEvent = this.time.addEvent({
+        delay: 1500,
+        callback: () => {
+            this.tiempoRestante--;
+            this.timerText.setText('Tiempo: ' + this.tiempoRestante);
+            if (this.tiempoRestante <= 0) {
+            this.gameoverImage.setVisible(true);
+            this.jugador.setTint(0xff0000);
+            this.physics.pause();
+            this.timedEvent.remove();
+            }
+        },
+        callbackScope: this,
+        loop: true
+        });
+
+        // Puntos
+        // Inicializar puntos a partir del estado global o usar 0 por defecto
+        window.GameState = window.GameState || {};
+        let puntos = window.GameState.puntos || 0;
+        window.GameState.puntos = puntos;
+
+        window.GameState.puntos = window.GameState.puntos !== undefined ? window.GameState.puntos : 0;
+        // Almacenar los puntos en el registry
+        this.registry.set('puntosTotales', puntos);
+
+        // Crear el objeto de texto para mostrar los puntos
+        this.puntosText = this.add.text(30, 20, 'Puntos: ' + puntos, {
+            fontSize: '28px',
+            fontFamily: 'SnowForSanta',
+            color: '#000000',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0, 0).setDepth(10);
+
+        console.log("Puntos cargados:", puntos);
+
+            // Función encapsulada para actualizar los puntos
+        this.updatePuntos = (nuevoValor) => {
+        if (nuevoValor === undefined) {
+            console.error("updatePuntos fue llamada sin un valor definido");
+            return;
         }
-      },
-      callbackScope: this,
-      loop: true
-    });
-
-        //puntos
-        this.puntos = 0;
-      this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
-      fontSize: '28px',
-      fontFamily: 'SnowForSanta',
-      color: '#000000',
-      padding: { x: 10, y: 5 }
-    }).setOrigin(0, 0).setDepth(10);
-    this.puntos = this.registry.get('puntosTotales') || 0;
-    console.log("Puntos cargados:", this.puntos);
-    this.puntosText.setText('Puntos: ' + this.puntos);
+        // Actualiza el estado global y el texto
+        window.GameState.puntos = nuevoValor;
+        this.registry.set('puntosTotales', nuevoValor);
+        this.puntosText.setText('Puntos: ' + nuevoValor);
+        console.log("Puntos actualizados:", nuevoValor);
+        };
 
         this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
         this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
@@ -270,10 +295,10 @@ export class Nivel5 extends Phaser.Scene {
         });
 
         this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
-        pez.disableBody(true, true); // Oculta y desactiva el pez
-        //punto de peces
-        this.puntos += 100;
-        this.puntosText.setText('Puntos: ' + this.puntos);
+            pez.disableBody(true, true); // Oculta y desactiva el pez
+            //punto de peces
+            puntos = window.GameState.puntos + 100;
+            this.updatePuntos(puntos);
         }, null, this);
 
         this.physics.add.overlap(this.jugador, this.cangrejo, (jugador, cangrejo) => {
@@ -328,44 +353,39 @@ export class Nivel5 extends Phaser.Scene {
         ];
 
           this.agregarBloqueIglu = () => {
-      while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-      this.bloques++;
-      }
-      if (this.bloques >= this.maxBloques) return;
-      const pos = this.igluPosiciones[this.bloques];
-      if (!pos) return; // Seguridad extra
-      const bloque = this.add.image(pos.x, pos.y, 'bloque');
-      bloque.setScale(0.13).setDepth(1);
-      this.bloques++;
-      // Suma puntos solo por bloques normales
-      this.puntos += 20;
-      this.puntosText.setText('Puntos: ' + this.puntos);
+            while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+            this.bloques++;
+            }
+            if (this.bloques >= this.maxBloques) return;
+            const pos = this.igluPosiciones[this.bloques];
+            if (!pos) return; // Seguridad extra
+            const bloque = this.add.image(pos.x, pos.y, 'bloque');
+            bloque.setScale(0.13).setDepth(1);
+            this.bloques++;
+            // Suma puntos solo por bloques normales
+            puntos = window.GameState.puntos + 10;
+            this.updatePuntos(puntos);
 
-  if (this.bloques === this.maxBloques) {
-    // Cuando el iglú está completo, agrega la puerta
-    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
-    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-    this.puerta.setScale(0.20).setDepth(2);
+            if (this.bloques === this.maxBloques) {
+                // Cuando el iglú está completo, agrega la puerta
+                this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+                this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+                this.puerta.setScale(0.20).setDepth(2);
 
-    // Habilita la comprobación para pasar de nivel en update()
-    this.iglúCompleto = true;
+                // Habilita la comprobación para pasar de nivel en update()
+                this.iglúCompleto = true;
 
-     // Agrega los puntos según el tiempo restante
-    if (this.iglúCompleto) {
-    this.puntos += this.tiempoRestante * 10;
-    this.puntosText.setText('Puntos: ' + this.puntos);
-}
-      if (this.bloques === this.maxBloques) {
-        // Cuando el iglú está completo, agrega la puerta
-        this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
-        this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-        this.puerta.setScale(0.20).setDepth(2);
+                if (this.bloques === this.maxBloques) {
+                    // Cuando el iglú está completo, agrega la puerta
+                    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+                    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+                    this.puerta.setScale(0.20).setDepth(2);
 
-        // Habilita la comprobación para pasar de nivel en update()
-        this.iglúCompleto = true;
-      }
-    }
-  }
+                    // Habilita la comprobación para pasar de nivel en update()
+                    this.iglúCompleto = true;
+                }
+            }
+        }
     }
 
     update() {
@@ -478,6 +498,8 @@ export class Nivel5 extends Phaser.Scene {
             if (this.iglúCompleto && this.puerta) {
                 const distancia = Phaser.Math.Distance.Between(this.jugador.x, this.jugador.y, this.puerta.x, this.puerta.y);
                 if (distancia < 40 && this.cursors.down.isDown) {
+                    this.puntos = window.GameState.puntos + (this.tiempoRestante * 10);
+                    this.updatePuntos(this.puntos);
                     this.scene.start('menu');
                 }
             }
