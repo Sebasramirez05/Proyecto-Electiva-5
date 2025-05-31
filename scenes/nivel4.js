@@ -20,9 +20,15 @@ export class Nivel4 extends Phaser.Scene {
     this.load.spritesheet('cangrejo', 'images/cangrejo.png', {frameWidth: 32,frameHeight: 38});
     this.load.spritesheet('golem_idle', 'images/golem_idle.png', { frameWidth: 90, frameHeight: 64 });
     this.load.spritesheet('golem_walk', 'images/golem_walk.png', { frameWidth: 90, frameHeight: 64 });
+    this.load.audio("musica", "musica/musicafondo.mp3")
   }
 
   create() {
+    //música de fondo
+    this.musica = this.sound.add('musica', { loop: true, volume: 0.5 });
+    this.musica.play();
+    this.musica.setVolume(1);
+
     this.respawnPoint = { x: 400, y: 80 }
     let lives = window.GameState.lives;
     this.lifeText = this.add.text(40, 83, 'Vidas: ' + lives, {
@@ -44,8 +50,10 @@ export class Nivel4 extends Phaser.Scene {
           jugador.setTint(0xff0000);
           this.physics.pause();
       }
+      if (this.musica) {
+        this.musica.pause(); // Pausar la música
+        }
     };
-
  //temporizador
     this.tiempoRestante = 60;
     this.timerText = this.add.text(110, 50, 'Tiempo: 60', {

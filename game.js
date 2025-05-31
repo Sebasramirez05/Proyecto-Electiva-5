@@ -17,9 +17,15 @@ export class Game extends Phaser.Scene{
     this.load.image("bloque", "images/bloque.png");
     this.load.image("puerta", "images/puerta.png");
     this.load.spritesheet('pajaro', 'images/pajaro.png', { frameWidth: 32, frameHeight: 32 });
+    this.load.audio("musica", "musica/musicafondo.mp3")
   }
 
   create() {
+    //música de fondo
+    this.musica = this.sound.add('musica', { loop: true, volume: 0.5 });
+    this.musica.play();
+    this.musica.setVolume(0.4);
+
     this.respawnPoint = { x: 400, y: 80 }
     // Acceder al valor global de vidas
     let lives = window.GameState.lives;
@@ -29,7 +35,7 @@ export class Game extends Phaser.Scene{
       fontFamily: 'SnowForSanta',
       fill: '#000000'
     }).setDepth(10);
-     // Temporizador
+// Temporizador
     this.tiempoRestante = 60;
     this.timerText = this.add.text(110, 50, 'Tiempo: ' + this.tiempoRestante, {
         fontSize: '28px',
@@ -77,7 +83,13 @@ export class Game extends Phaser.Scene{
         } else {
             this.finalizarJuego();
         }
+        if (this.musica) {
+        this.musica.pause(); // Pausar la música
+        }
     };
+
+    
+
 
     // Función para cambiar a la escena de Game Over correctamente
     this.finalizarJuego = () => {
@@ -86,11 +98,9 @@ export class Game extends Phaser.Scene{
         if (this.timedEvent) {
             this.timedEvent.remove(); // Evita que el temporizador siga corriendo
         }
-        
         this.scene.stop(this.scene.key); // Detiene la escena actual
         this.scene.start("gameover", { escenaAnterior: this.scene.key, puntos: this.puntos });
     };
-
 
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
@@ -351,6 +361,7 @@ this.bloques = 0;
       this.jugador.play('jump', true);
       this.time.delayedCall(80, () => this.jugador.setVelocityY(-450));
     }
+
 
     if (!this.jugador.body.onFloor() && this.jugador.body.velocity.y > 0) {
       this.jugador.play('jump', true);
