@@ -48,11 +48,9 @@ export class Nivel3 extends Phaser.Scene {
 
 
 
-//temporizador
+ //temporizador
     this.tiempoRestante = 60;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {},
-    this.tiempoRestante = 50);
-    this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
+    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
     fontFamily: 'SnowForSanta',
     color: '#000000',
@@ -61,7 +59,6 @@ export class Nivel3 extends Phaser.Scene {
 
     this.timedEvent = this.time.addEvent({
       delay: 1500,
-      delay: 1000,
       callback: () => {
         this.tiempoRestante--;
         this.timerText.setText('Tiempo: ' + this.tiempoRestante);
@@ -75,8 +72,9 @@ export class Nivel3 extends Phaser.Scene {
       callbackScope: this,
       loop: true
     });
-
     //puntos
+    this.puntos = this.registry.get('puntosTotales') || 0;
+
     this.puntos = 0;
       this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
       fontSize: '28px',

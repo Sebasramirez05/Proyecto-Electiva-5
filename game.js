@@ -55,6 +55,8 @@ export class Game extends Phaser.Scene{
     });
 
     //puntos
+    this.puntos = this.registry.get('puntosTotales') || 0;
+
     this.puntos = 0;
       this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
       fontSize: '28px',
@@ -80,6 +82,7 @@ export class Game extends Phaser.Scene{
     };
 
     this.scene.start('nivel3');
+
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -306,11 +309,11 @@ this.bloques = 0;
 
         // Habilita la comprobación para pasar de nivel en update()
         this.iglúCompleto = true;
-      }
+      }}
     }
   }
 
-  update(); {
+  update() {
     // Mover al jugador con la plataforma si está parado sobre ella
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
@@ -379,5 +382,5 @@ this.bloques = 0;
       }
     }
   }
-  }
 }
+

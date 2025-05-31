@@ -48,29 +48,27 @@ export class Nivel5 extends Phaser.Scene {
 
         //temporizador
     this.tiempoRestante = 60;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {},
-    this.tiempoRestante = 50);
-    this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
-        fontSize: '28px',
-        fontFamily: 'SnowForSanta',
-        color: '#000000',
-        padding: { x: 10, y: 5 }
+    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
+    fontSize: '28px',
+    fontFamily: 'SnowForSanta',
+    color: '#000000',
+    padding: { x: 10, y: 5 }
     }).setOrigin(0.5, 0).setDepth(10);
 
     this.timedEvent = this.time.addEvent({
-        delay: 1500,
-        callback: () => {
+      delay: 1500,
+      callback: () => {
         this.tiempoRestante--;
         this.timerText.setText('Tiempo: ' + this.tiempoRestante);
         if (this.tiempoRestante <= 0) {
-                this.gameoverImage.setVisible(true);
-                this.jugador.setTint(0xff0000);
-                this.physics.pause();
-                this.timedEvent.remove();
-            }
-            },
-            callbackScope: this,
-            loop: true
+          this.gameoverImage.setVisible(true);
+          this.jugador.setTint(0xff0000);
+          this.physics.pause();
+          this.timedEvent.remove();
+        }
+      },
+      callbackScope: this,
+      loop: true
     });
 
         //puntos

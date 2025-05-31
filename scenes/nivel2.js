@@ -44,7 +44,7 @@ export class Nivel2 extends Phaser.Scene {
     };
 
 
-//temporizador
+    //temporizador
     this.tiempoRestante = 60;
     this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
@@ -281,7 +281,7 @@ export class Nivel2 extends Phaser.Scene {
       this.puntos += 20;
       this.puntosText.setText('Puntos: ' + this.puntos);
 
-  if (this.bloques === this.maxBloques) {
+    if (this.bloques === this.maxBloques) {
     // Cuando el iglú está completo, agrega la puerta
     this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
     this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
@@ -305,9 +305,9 @@ export class Nivel2 extends Phaser.Scene {
         this.iglúCompleto = true;
       }
     }
-  }
+  }}
 
-  update(); {
+  update() {
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
         this.jugador.body.velocity.x === 0) {
@@ -359,6 +359,7 @@ export class Nivel2 extends Phaser.Scene {
         plataforma.x = -plataforma.displayWidth / 2;
       }
     });
+
     this.pajaros.children.iterate(pajaro => {
       if (pajaro.x > 900) {
         pajaro.x = -100;
@@ -366,11 +367,12 @@ export class Nivel2 extends Phaser.Scene {
         pajaro.x = 900;
       }
     });
+
     this.peces.children.iterate(pez => {
       if (!pez.active) return;
       if (pez.body.velocity.x > 0 && pez.x > 900) {
         pez.x = -100;
-      } else if (pez.body.velocity.x < 0 && pez.x < -100) {
+      } else if (pez.body.velocity.x < 0 && pez.x < -300) {
         pez.x = 900;
       }
     });
@@ -381,9 +383,9 @@ export class Nivel2 extends Phaser.Scene {
       this.puerta.x, this.puerta.y
       );
       if (distancia < 40 && this.cursors.down.isDown) {
-        this.scene.start('nivel3');
+      this.scene.start('nivel4');
       }
     }
+
   }
-}
 }

@@ -46,11 +46,9 @@ export class Nivel4 extends Phaser.Scene {
       }
     };
 
-//temporizador
+ //temporizador
     this.tiempoRestante = 60;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {},
-    this.tiempoRestante = 50);
-    this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
+    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
     fontFamily: 'SnowForSanta',
     color: '#000000',
@@ -59,7 +57,6 @@ export class Nivel4 extends Phaser.Scene {
 
     this.timedEvent = this.time.addEvent({
       delay: 1500,
-      delay: 1000,
       callback: () => {
         this.tiempoRestante--;
         this.timerText.setText('Tiempo: ' + this.tiempoRestante);
