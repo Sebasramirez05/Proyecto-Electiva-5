@@ -30,8 +30,8 @@ export class Game extends Phaser.Scene{
       fill: '#000000'
     }).setDepth(10);
     //temporizador
-    this.tiempoRestante = 50;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
+    this.tiempoRestante = 60;
+    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
     fontFamily: 'SnowForSanta',
     color: '#000000',
@@ -39,7 +39,7 @@ export class Game extends Phaser.Scene{
     }).setOrigin(0.5, 0).setDepth(10);
 
     this.timedEvent = this.time.addEvent({
-      delay: 1000,
+      delay: 1500,
       callback: () => {
         this.tiempoRestante--;
         this.timerText.setText('Tiempo: ' + this.tiempoRestante);
@@ -167,6 +167,16 @@ export class Game extends Phaser.Scene{
       }
     };
 
+    crearPajaro(-50, filas[0].y - 50, 75);
+    crearPajaro(-100, filas[1].y - 50, 75);
+    crearPajaro(850, filas[2].y - 50, -75);
+    crearPajaro(-150, filas[3].y - 50, 75);
+
+
+
+
+
+
     crearPajaro(-50, filas[0].y - 50, 90);
     crearPajaro(-150, filas[3].y - 50, 85);
     crearPajaro(-100, filas[3].y - 50, 85);
@@ -213,6 +223,30 @@ export class Game extends Phaser.Scene{
       this.scene.bringToTop('pausamenu');
     });
 
+this.bloques = 0;
+    this.maxBloques = 12;
+    this.igluCompleto = false;
+    //IGLU
+    this.igluPosiciones = [
+  // Fila 1 (base) - ajusta la Y para que esté justo sobre la plataforma base
+  { x: 600, y: 140 },
+  { x: 635, y: 140 },
+  null,
+  { x: 690, y: 140 },
+  { x: 725, y: 140 },
+
+  // Fila 2
+  { x: 620, y: 110 },
+  { x: 650, y: 110 },
+  { x: 680, y: 110 },
+  { x: 710, y: 110 },
+
+  // Fila 3
+  { x: 635, y: 80 },
+  { x: 665, y: 80 },
+  { x: 695, y: 80 },
+
+];
     this.bloques = 0;
         this.maxBloques = 12;
         this.igluCompleto = false;
@@ -250,6 +284,20 @@ export class Game extends Phaser.Scene{
       this.puntos += 20;
       this.puntosText.setText('Puntos: ' + this.puntos);
 
+  if (this.bloques === this.maxBloques) {
+    // Cuando el iglú está completo, agrega la puerta
+    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+    this.puerta.setScale(0.20).setDepth(2);
+
+    // Habilita la comprobación para pasar de nivel en update()
+    this.iglúCompleto = true;
+
+     // Agrega los puntos según el tiempo restante
+    if (this.iglúCompleto) {
+    this.puntos += this.tiempoRestante * 10;
+    this.puntosText.setText('Puntos: ' + this.puntos);
+}
       if (this.bloques === this.maxBloques) {
         // Cuando el iglú está completo, agrega la puerta
         this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
@@ -262,7 +310,7 @@ export class Game extends Phaser.Scene{
     }
   }
 
-  update() {
+  update(); {
     // Mover al jugador con la plataforma si está parado sobre ella
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
@@ -330,5 +378,6 @@ export class Game extends Phaser.Scene{
       this.scene.start('nivel2');
       }
     }
+  }
   }
 }

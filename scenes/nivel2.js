@@ -43,6 +43,42 @@ export class Nivel2 extends Phaser.Scene {
       }
     };
 
+
+//temporizador
+    this.tiempoRestante = 60;
+    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
+    fontSize: '28px',
+    fontFamily: 'SnowForSanta',
+    color: '#000000',
+    padding: { x: 10, y: 5 }
+    }).setOrigin(0.5, 0).setDepth(10);
+
+    this.timedEvent = this.time.addEvent({
+      delay: 1500,
+      callback: () => {
+        this.tiempoRestante--;
+        this.timerText.setText('Tiempo: ' + this.tiempoRestante);
+        if (this.tiempoRestante <= 0) {
+          this.gameoverImage.setVisible(true);
+          this.jugador.setTint(0xff0000);
+          this.physics.pause();
+          this.timedEvent.remove();
+        }
+      },
+      callbackScope: this,
+      loop: true
+    });
+
+    //puntos
+    this.puntos = 0;
+      this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
+      fontSize: '28px',
+      fontFamily: 'SnowForSanta',
+      color: '#000000',
+      padding: { x: 10, y: 5 }
+    }).setOrigin(0, 0).setDepth(10);
+   
+
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
@@ -187,7 +223,10 @@ export class Nivel2 extends Phaser.Scene {
 
     this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
       pez.disableBody(true, true); // Oculta y desactiva el pez
-    });
+      //punto de peces
+       this.puntos += 100;
+    this.puntosText.setText('Puntos: ' + this.puntos);
+    }, null, this);
 
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
@@ -228,9 +267,9 @@ export class Nivel2 extends Phaser.Scene {
       { x: 695, y: 80 },
     ];
 
-    this.agregarBloqueIglu = () => {
+     this.agregarBloqueIglu = () => {
       while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-        this.bloques++;
+      this.bloques++;
       }
       if (this.bloques >= this.maxBloques) return;
       const pos = this.igluPosiciones[this.bloques];
@@ -238,18 +277,37 @@ export class Nivel2 extends Phaser.Scene {
       const bloque = this.add.image(pos.x, pos.y, 'bloque');
       bloque.setScale(0.13).setDepth(1);
       this.bloques++;
+      // Suma puntos solo por bloques normales
+      this.puntos += 20;
+      this.puntosText.setText('Puntos: ' + this.puntos);
 
+  if (this.bloques === this.maxBloques) {
+    // Cuando el iglú está completo, agrega la puerta
+    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+    this.puerta.setScale(0.20).setDepth(2);
+
+    // Habilita la comprobación para pasar de nivel en update()
+    this.iglúCompleto = true;
+
+     // Agrega los puntos según el tiempo restante
+    if (this.iglúCompleto) {
+    this.puntos += this.tiempoRestante * 10;
+    this.puntosText.setText('Puntos: ' + this.puntos);
+}
       if (this.bloques === this.maxBloques) {
         // Cuando el iglú está completo, agrega la puerta
         this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
         this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
         this.puerta.setScale(0.20).setDepth(2);
+
+        // Habilita la comprobación para pasar de nivel en update()
         this.iglúCompleto = true;
       }
     }
   }
 
-  update() {
+  update(); {
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
         this.jugador.body.velocity.x === 0) {
@@ -327,4 +385,5 @@ export class Nivel2 extends Phaser.Scene {
       }
     }
   }
+}
 }
