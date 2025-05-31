@@ -29,59 +29,68 @@ export class Game extends Phaser.Scene{
       fontFamily: 'SnowForSanta',
       fill: '#000000'
     }).setDepth(10);
-    //temporizador
+     // Temporizador
     this.tiempoRestante = 60;
-    this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
-    fontSize: '28px',
-    fontFamily: 'SnowForSanta',
-    color: '#000000',
-    padding: { x: 10, y: 5 }
+    this.timerText = this.add.text(110, 50, 'Tiempo: ' + this.tiempoRestante, {
+        fontSize: '28px',
+        fontFamily: 'SnowForSanta',
+        color: '#000000',
+        padding: { x: 10, y: 5 }
     }).setOrigin(0.5, 0).setDepth(10);
 
+    // Evento de tiempo con control de Game Over
     this.timedEvent = this.time.addEvent({
-      delay: 1500,
-      callback: () => {
-        this.tiempoRestante--;
-        this.timerText.setText('Tiempo: ' + this.tiempoRestante);
-        if (this.tiempoRestante <= 0) {
-          this.gameoverImage.setVisible(true);
-          this.jugador.setTint(0xff0000);
-          this.physics.pause();
-          this.timedEvent.remove();
-        }
-      },
-      callbackScope: this,
-      loop: true
+        delay: 1500,
+        callback: () => {
+            this.tiempoRestante--;
+            this.timerText.setText('Tiempo: ' + this.tiempoRestante);
+
+            if (this.tiempoRestante <= 0) {
+                this.finalizarJuego();
+            }
+        },
+        callbackScope: this,
+        loop: true
     });
 
-    //puntos
+    // Puntos
     this.puntos = this.registry.get('puntosTotales') || 0;
-
-    this.puntos = 0;
-      this.puntosText = this.add.text(30, 20, 'Puntos: 0', {
-      fontSize: '28px',
-      fontFamily: 'SnowForSanta',
-      color: '#000000',
-      padding: { x: 10, y: 5 }
+    this.puntosText = this.add.text(30, 20, 'Puntos: ' + this.puntos, {
+        fontSize: '28px',
+        fontFamily: 'SnowForSanta',
+        color: '#000000',
+        padding: { x: 10, y: 5 }
     }).setOrigin(0, 0).setDepth(10);
 
+    console.log("Puntos cargados:", this.puntos);
+    this.puntosText.setText('Puntos: ' + this.puntos);
 
+    // Función para manejar la pérdida de vidas
     this.loseLife = (jugador) => {
-      window.GameState.lives--;
-      this.lifeText.setText('Vidas: ' + window.GameState.lives);
-      
-      if (window.GameState.lives > 0) {
-        jugador.setPosition(this.respawnPoint.x, this.respawnPoint.y);
-        jugador.clearTint();
-        jugador.body.setVelocity(0);
-      } else {
-          this.gameoverImage.setVisible(true);
-          jugador.setTint(0xff0000);
-          this.physics.pause();
-      }
+        window.GameState.lives--;
+        this.lifeText.setText('Vidas: ' + window.GameState.lives);
+
+        if (window.GameState.lives > 0) {
+            jugador.setPosition(this.respawnPoint.x, this.respawnPoint.y);
+            jugador.clearTint();
+            jugador.body.setVelocity(0);
+        } else {
+            this.finalizarJuego();
+        }
     };
 
-    this.scene.start('nivel3');
+    // Función para cambiar a la escena de Game Over correctamente
+    this.finalizarJuego = () => {
+        console.log("Game Over - Transición a la escena");
+
+        if (this.timedEvent) {
+            this.timedEvent.remove(); // Evita que el temporizador siga corriendo
+        }
+        
+        this.scene.stop(this.scene.key); // Detiene la escena actual
+        this.scene.start("gameover", { escenaAnterior: this.scene.key, puntos: this.puntos });
+    };
+
 
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);

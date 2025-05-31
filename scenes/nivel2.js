@@ -77,7 +77,10 @@ export class Nivel2 extends Phaser.Scene {
       color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(0, 0).setDepth(10);
-   
+    this.puntos = this.registry.get('puntosTotales') || 0;
+    console.log("Puntos cargados:", this.puntos);
+    this.puntosText.setText('Puntos: ' + this.puntos);
+
 
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
