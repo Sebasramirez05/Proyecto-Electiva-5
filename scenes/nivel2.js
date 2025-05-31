@@ -129,11 +129,11 @@ export class Nivel2 extends Phaser.Scene {
         if (velocidadX < 0) pez.setFlipX(true);
     }
 
-        crearPez(800, filas[1].y -50, -70);
-        crearPez(850, filas[1].y -50, -70);
-        crearPez(-50, filas[2].y -50, 70);
-        crearPez(-100, filas[2].y -50, 70);
-        crearPez(-150, filas[2].y -50, 70); 
+    crearPez(800, filas[1].y -50, -70);
+    crearPez(850, filas[1].y -50, -70);
+    crearPez(-50, filas[2].y -50, 70);
+    crearPez(-100, filas[2].y -50, 70);
+    crearPez(-150, filas[2].y -50, 70); 
 
     const permitirAtravesar = (jugador, plataforma) => {
       const tocandoDesdeArriba = jugador.body.velocity.y >= 0 && jugador.body.bottom <= plataforma.body.top + 10;
@@ -185,50 +185,49 @@ export class Nivel2 extends Phaser.Scene {
 
 
 
-this.bloques = 0;
+    this.bloques = 0;
     this.maxBloques = 12;
     this.igluCompleto = false;
     //IGLU
     this.igluPosiciones = [
-  // Fila 1 (base) 
-  { x: 600, y: 140 },
-  { x: 635, y: 140 },
-  null,
-  { x: 690, y: 140 },
-  { x: 725, y: 140 },
+      // Fila 1 (base) 
+      { x: 600, y: 140 },
+      { x: 635, y: 140 },
+      null,
+      { x: 690, y: 140 },
+      { x: 725, y: 140 },
 
-  // Fila 2
-  { x: 620, y: 110 },
-  { x: 650, y: 110 },
-  { x: 680, y: 110 },
-  { x: 710, y: 110 },
+      // Fila 2
+      { x: 620, y: 110 },
+      { x: 650, y: 110 },
+      { x: 680, y: 110 },
+      { x: 710, y: 110 },
 
-  // Fila 3
-  { x: 635, y: 80 },
-  { x: 665, y: 80 },
-  { x: 695, y: 80 },
-
-];
+      // Fila 3
+      { x: 635, y: 80 },
+      { x: 665, y: 80 },
+      { x: 695, y: 80 },
+    ];
 
     this.agregarBloqueIglu = () => {
-  while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-    this.bloques++;
-  }
-  if (this.bloques >= this.maxBloques) return;
-  const pos = this.igluPosiciones[this.bloques];
-  if (!pos) return; // Seguridad extra
-  const bloque = this.add.image(pos.x, pos.y, 'bloque');
-  bloque.setScale(0.13).setDepth(1);
-  this.bloques++;
+      while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+        this.bloques++;
+      }
+      if (this.bloques >= this.maxBloques) return;
+      const pos = this.igluPosiciones[this.bloques];
+      if (!pos) return; // Seguridad extra
+      const bloque = this.add.image(pos.x, pos.y, 'bloque');
+      bloque.setScale(0.13).setDepth(1);
+      this.bloques++;
 
-  if (this.bloques === this.maxBloques) {
-    // Cuando el iglú está completo, agrega la puerta
-    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
-    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-    this.puerta.setScale(0.20).setDepth(2);
-    this.iglúCompleto = true;
-  }
-}
+      if (this.bloques === this.maxBloques) {
+        // Cuando el iglú está completo, agrega la puerta
+        this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
+        this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
+        this.puerta.setScale(0.20).setDepth(2);
+        this.iglúCompleto = true;
+      }
+    }
   }
 
   update() {
@@ -301,13 +300,13 @@ this.bloques = 0;
       }
     });
 
-        if (this.iglúCompleto && this.puerta) {
+    if (this.iglúCompleto && this.puerta) {
       const distancia = Phaser.Math.Distance.Between(
       this.jugador.x, this.jugador.y,
       this.puerta.x, this.puerta.y
       );
       if (distancia < 40 && this.cursors.down.isDown) {
-      this.scene.start('nivel3');
+        this.scene.start('nivel3');
       }
     }
   }

@@ -46,56 +46,56 @@ export class Nivel3 extends Phaser.Scene {
     baseTransparente.body.checkCollision.down = false;
     this.platforms.add(baseTransparente);
 
-this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
+    this.movingPlatforms = this.physics.add.group({ allowGravity: false, immovable: true });
 
-const filas = [
-  { y: 520, dir: 1 },
-  { y: 430, dir: -1 },
-  { y: 340, dir: 1 },
-  { y: 250, dir: -1 }
-];
+    const filas = [
+      { y: 520, dir: 1 },
+      { y: 430, dir: -1 },
+      { y: 340, dir: 1 },
+      { y: 250, dir: -1 }
+    ];
 
-const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
-const espacio = anchoReal + 5;
+    const anchoReal = this.textures.get('hielo').getSourceImage().width * 0.5;
+    const espacio = anchoReal + 5;
 
-this.barrerasMortales = [];
-filas.forEach(fila => {
-  // Creamos dos grupos (grupo 0 y grupo 1)
-  for (let grupo = 0; grupo < 2; grupo++) {
-    // El inicio en X será 70 para el primer grupo, y 70 + 300 para el segundo
-    const inicioXGrupo = 0 + grupo * 500;
-    // Se crean 3 plataformas por grupo
-    for (let i = 0; i < 3; i++) {
-      const x = inicioXGrupo + espacio * i;
-      const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
-        .setScale(0.45)
-        .setVelocityX(100 * fila.dir);
-      plataforma.setData('dir', fila.dir);
-      plataforma.body.checkCollision.up = true;
-      plataforma.body.checkCollision.down = false;
-      
-      const bodyHeight = plataforma.height * 0.3;
-      const offsetY = plataforma.height * 0.1;
-      plataforma.setSize(185, bodyHeight);
-      plataforma.setOffset(0, offsetY);
-    }
-  }
+    this.barrerasMortales = [];
+    filas.forEach(fila => {
+      // Creamos dos grupos (grupo 0 y grupo 1)
+      for (let grupo = 0; grupo < 2; grupo++) {
+        // El inicio en X será 70 para el primer grupo, y 70 + 300 para el segundo
+        const inicioXGrupo = 0 + grupo * 500;
+        // Se crean 3 plataformas por grupo
+        for (let i = 0; i < 3; i++) {
+          const x = inicioXGrupo + espacio * i;
+          const plataforma = this.movingPlatforms.create(x, fila.y, 'hielo')
+            .setScale(0.45)
+            .setVelocityX(100 * fila.dir);
+          plataforma.setData('dir', fila.dir);
+          plataforma.body.checkCollision.up = true;
+          plataforma.body.checkCollision.down = false;
+          
+          const bodyHeight = plataforma.height * 0.3;
+          const offsetY = plataforma.height * 0.1;
+          plataforma.setSize(185, bodyHeight);
+          plataforma.setOffset(0, offsetY);
+        }
+      }
 
-  const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
-  this.physics.add.existing(barrera, true);
-  barrera.body.checkCollision.up = true;
-  barrera.body.checkCollision.down = false;
-  this.barrerasMortales.push(barrera);
+      const barrera = this.add.rectangle(400, fila.y - 7, 800, 1, 0xff0000, 0);
+      this.physics.add.existing(barrera, true);
+      barrera.body.checkCollision.up = true;
+      barrera.body.checkCollision.down = false;
+      this.barrerasMortales.push(barrera);
 
-  this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
-    const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
-    if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-      this.jugador.setTint(0xff0000);
-      this.gameoverImage.setVisible(true);
-      this.physics.pause();
-    }
-  });
-});
+      this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
+        const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
+        if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
+          this.jugador.setTint(0xff0000);
+          this.gameoverImage.setVisible(true);
+          this.physics.pause();
+        }
+      });
+    });
 
     this.anims.create({ key: 'idle', frames: this.anims.generateFrameNumbers('jugador', { start: 0, end: 5 }), frameRate: 8, repeat: -1 });
     this.anims.create({ key: 'run', frames: this.anims.generateFrameNumbers('run', { start: 0, end: 5 }), frameRate: 12, repeat: -1 });
@@ -198,6 +198,12 @@ filas.forEach(fila => {
       pez.disableBody(true, true); // Oculta y desactiva el pez
     });
 
+    this.physics.add.overlap(this.jugador, this.cangrejo, (jugador, cangrejo) => {
+      this.gameoverImage.setVisible(true);
+      jugador.setTint(0xff0000);
+      this.physics.pause();
+    });
+
     const pauseButton = this.add.text(750, 20, '⏸', {
       fontSize: '32px',
       color: '#ffffff',
@@ -211,50 +217,42 @@ filas.forEach(fila => {
       this.scene.bringToTop('pausamenu');
     });
 
-this.bloques = 0;
+    this.bloques = 0;
     this.maxBloques = 12;
     this.igluCompleto = false;
     //IGLU
     this.igluPosiciones = [
-  // Fila 1 (base) 
-  { x: 600, y: 140 },
-  { x: 635, y: 140 },
-  null,
-  { x: 690, y: 140 },
-  { x: 725, y: 140 },
+      // Fila 1 (base) 
+      { x: 600, y: 140 },
+      { x: 635, y: 140 },
+      null,
+      { x: 690, y: 140 },
+      { x: 725, y: 140 },
 
-  // Fila 2
-  { x: 620, y: 110 },
-  { x: 650, y: 110 },
-  { x: 680, y: 110 },
-  { x: 710, y: 110 },
+      // Fila 2
+      { x: 620, y: 110 },
+      { x: 650, y: 110 },
+      { x: 680, y: 110 },
+      { x: 710, y: 110 },
 
-  // Fila 3
-  { x: 635, y: 80 },
-  { x: 665, y: 80 },
-  { x: 695, y: 80 },
+      // Fila 3
+      { x: 635, y: 80 },
+      { x: 665, y: 80 },
+      { x: 695, y: 80 },
 
-];
+    ];
 
     this.agregarBloqueIglu = () => {
-  while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
-    this.bloques++;
-  }
-  if (this.bloques >= this.maxBloques) return;
-  const pos = this.igluPosiciones[this.bloques];
-  if (!pos) return; // Seguridad extra
-  const bloque = this.add.image(pos.x, pos.y, 'bloque');
-  bloque.setScale(0.13).setDepth(1);
-  this.bloques++;
-
-  if (this.bloques === this.maxBloques) {
-    // Cuando el iglú está completo, agrega la puerta
-    this.puertaPos = { x: 663, y: 125 }; // Usa la posición del null en la base
-    this.puerta = this.add.image(this.puertaPos.x, this.puertaPos.y, 'puerta');
-    this.puerta.setScale(0.20).setDepth(2);
-    this.iglúCompleto = true;
-  }
-}
+      while (this.bloques < this.igluPosiciones.length && !this.igluPosiciones[this.bloques]) {
+        this.bloques++;
+      }
+      if (this.bloques >= this.maxBloques) return;
+      const pos = this.igluPosiciones[this.bloques];
+      if (!pos) return; // Seguridad extra
+      const bloque = this.add.image(pos.x, pos.y, 'bloque');
+      bloque.setScale(0.13).setDepth(1);
+      this.bloques++;
+    }
   }
 
   update() {
