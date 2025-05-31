@@ -59,12 +59,9 @@ export class Nivel4 extends Phaser.Scene {
         this.musica.pause(); // Pausar la música
         }
     };
-<<<<<<< HEAD
  //temporizador
-=======
 
     //temporizador
->>>>>>> 1f43769e5568602d85e314f9606e0f42104ca02a
     this.tiempoRestante = 60;
     this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
