@@ -21,10 +21,13 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
-        //música de fondo
+    //música de fondo
     this.musica = this.sound.add('musica', { loop: true, volume: 0.5 });
     this.musica.play();
     this.musica.setVolume(0.4);
+
+
+
 
     this.respawnPoint = { x: 400, y: 80 }
     // Acceder al valor global de vidas
