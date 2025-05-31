@@ -20,6 +20,15 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
+    this.respawnPoint = { x: 400, y: 80 }
+    // Acceder al valor global de vidas
+    let lives = window.GameState.lives;
+    // Mostrar las vidas en pantalla utilizando un objeto de texto
+    this.lifeText = this.add.text(40, 83, 'Vidas: ' + lives, {
+      fontSize: '28px',
+      fontFamily: 'SnowForSanta',
+      fill: '#000000'
+    }).setDepth(10);
     //temporizador
     this.tiempoRestante = 50;
     this.timerText = this.add.text(110, 50, 'Tiempo: 50', {
@@ -53,8 +62,24 @@ export class Game extends Phaser.Scene{
       color: '#000000',
       padding: { x: 10, y: 5 }
     }).setOrigin(0, 0).setDepth(10);
-   
-    this.scene.start('nivel5');
+
+
+    this.loseLife = (jugador) => {
+      window.GameState.lives--;
+      this.lifeText.setText('Vidas: ' + window.GameState.lives);
+      
+      if (window.GameState.lives > 0) {
+        jugador.setPosition(this.respawnPoint.x, this.respawnPoint.y);
+        jugador.clearTint();
+        jugador.body.setVelocity(0);
+      } else {
+          this.gameoverImage.setVisible(true);
+          jugador.setTint(0xff0000);
+          this.physics.pause();
+      }
+    };
+
+    this.scene.start('nivel3');
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -115,9 +140,7 @@ export class Game extends Phaser.Scene{
       this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
         const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
         if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-          this.jugador.setTint(0xff0000);
-          this.gameoverImage.setVisible(true);
-          this.physics.pause();
+          this.loseLife(jugador);
         }
       });
     });
@@ -174,9 +197,7 @@ export class Game extends Phaser.Scene{
     });
 
     this.physics.add.overlap(this.jugador, this.pajaros, (jugador, pajaro) => {
-      this.gameoverImage.setVisible(true);
-      jugador.setTint(0xff0000);
-      this.physics.pause();
+      this.loseLife(jugador);
     });
 
     const pauseButton = this.add.text(750, 20, '⏸', {
@@ -280,9 +301,7 @@ export class Game extends Phaser.Scene{
     }
 
     if (this.jugador.y > 500) {
-      this.gameoverImage.setVisible(true);
-      this.jugador.setTint(0xff0000);
-      this.physics.pause();
+      this.loseLife(this.jugador);
     }
 
    

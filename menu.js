@@ -8,6 +8,13 @@ export class Menu extends Phaser.Scene {
     }
 
     create(){
+        if (!window.GameState) {
+            window.GameState = {
+                lives: 3,
+                score: 0
+            };
+        }
+
         const {width, height} = this.sys.game.config;
         this.add.image(width / 2, height / 2, "fondo").setDisplaySize(width, height);
 

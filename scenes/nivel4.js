@@ -23,6 +23,28 @@ export class Nivel4 extends Phaser.Scene {
   }
 
   create() {
+    this.respawnPoint = { x: 400, y: 80 }
+    let lives = window.GameState.lives;
+    this.lifeText = this.add.text(40, 83, 'Vidas: ' + lives, {
+      fontSize: '28px',
+      fontFamily: 'SnowForSanta',
+      fill: '#000000'
+    }).setDepth(10);
+
+    this.loseLife = (jugador) => {
+      window.GameState.lives--;
+      this.lifeText.setText('Vidas: ' + window.GameState.lives);
+      
+      if (window.GameState.lives > 0) {
+        jugador.setPosition(this.respawnPoint.x, this.respawnPoint.y);
+        jugador.clearTint();
+        jugador.body.setVelocity(0);
+      } else {
+          this.gameoverImage.setVisible(true);
+          jugador.setTint(0xff0000);
+          this.physics.pause();
+      }
+    };
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
     this.gameoverImage = this.add.image(400, 90, 'gameover').setVisible(false);
@@ -90,9 +112,7 @@ export class Nivel4 extends Phaser.Scene {
       this.physics.add.overlap(this.jugador, barrera, (jugador, barrera) => {
         const sobrePlataforma = this.physics.overlap(jugador, this.movingPlatforms);
         if (!sobrePlataforma && jugador.body.velocity.y >= 0) {
-          this.jugador.setTint(0xff0000);
-          this.gameoverImage.setVisible(true);
-          this.physics.pause();
+          this.loseLife(jugador);
         }
       });
     });
@@ -203,9 +223,7 @@ export class Nivel4 extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.jugador, this.pajaros, (jugador, pajaro) => {
-      this.gameoverImage.setVisible(true);
-      jugador.setTint(0xff0000);
-      this.physics.pause();
+      this.loseLife(jugador);
     });
 
     this.physics.add.overlap(this.jugador, this.peces, (jugador, pez) => {
@@ -213,9 +231,7 @@ export class Nivel4 extends Phaser.Scene {
     });
 
     this.physics.add.overlap(this.jugador, this.cangrejo, (jugador, cangrejo) => {
-      this.gameoverImage.setVisible(true);
-      jugador.setTint(0xff0000);
-      this.physics.pause();
+      this.loseLife(jugador);
     });
 
     this.physics.add.overlap(this.jugador, this.golem, (jugador, golem) => {
@@ -223,9 +239,8 @@ export class Nivel4 extends Phaser.Scene {
       if (golemSobreJugador) {
         return;
       }
-      this.gameoverImage.setVisible(true);
-      jugador.setTint(0xff0000);
-      this.physics.pause();
+      this.loseLife(jugador);
+      golem.setPosition(780, 85);
     });
 
     const pauseButton = this.add.text(750, 20, '⏸', {
@@ -329,9 +344,7 @@ export class Nivel4 extends Phaser.Scene {
     }
 
     if (this.jugador.y > 500) {
-      this.gameoverImage.setVisible(true);
-      this.jugador.setTint(0xff0000);
-      this.physics.pause();
+      this.loseLife(this.jugador);
     }
 
     this.movingPlatforms.children.iterate(plataforma => {
