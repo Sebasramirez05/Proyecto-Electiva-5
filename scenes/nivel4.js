@@ -55,16 +55,12 @@ export class Nivel4 extends Phaser.Scene {
           jugador.setTint(0xff0000);
           this.physics.pause();
       }
-      if (this.musica) {
+            if (this.musica && window.GameState.lives <= 0) {
         this.musica.pause(); // Pausar la música
         }
     };
-<<<<<<< HEAD
- //temporizador
-=======
 
     //temporizador
->>>>>>> 1f43769e5568602d85e314f9606e0f42104ca02a
     this.tiempoRestante = 60;
     this.timerText = this.add.text(110, 50, 'Tiempo: 60', {
     fontSize: '28px',
@@ -516,6 +512,7 @@ export class Nivel4 extends Phaser.Scene {
         if (distancia < 40 && this.cursors.down.isDown) {
           this.puntos = window.GameState.puntos + (this.tiempoRestante * 10);
           this.updatePuntos(this.puntos);
+          this.musica.stop(); 
           this.scene.start('nivel5');
         }
       }

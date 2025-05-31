@@ -21,15 +21,11 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
-<<<<<<< HEAD
-    //música de fondo
+        //música de fondo
     this.musica = this.sound.add('musica', { loop: true, volume: 0.5 });
     this.musica.play();
     this.musica.setVolume(0.4);
 
-=======
-    this.scene.start('nivel4');
->>>>>>> 1f43769e5568602d85e314f9606e0f42104ca02a
     this.respawnPoint = { x: 400, y: 80 }
     // Acceder al valor global de vidas
     let lives = window.GameState.lives;
@@ -108,7 +104,7 @@ export class Game extends Phaser.Scene{
         } else {
             this.finalizarJuego();
         }
-        if (this.musica) {
+            if (this.musica && window.GameState.lives <= 0) {
         this.musica.pause(); // Pausar la música
         }
     };
@@ -421,6 +417,7 @@ this.bloques = 0;
       if (distancia < 40 && this.cursors.down.isDown) {
         this.puntos = window.GameState.puntos + (this.tiempoRestante * 10);
         this.updatePuntos(this.puntos);
+        this.musica.stop(); // Detener la música al completar el nivel
         this.scene.start('nivel2');
       }
     }

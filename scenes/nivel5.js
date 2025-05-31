@@ -54,7 +54,7 @@ export class Nivel5 extends Phaser.Scene {
           jugador.setTint(0xff0000);
           this.physics.pause();
       }
-      if (this.musica) {
+      if (this.musica && window.GameState.lives <= 0) {
         this.musica.pause(); // Pausar la música
         }
     };
@@ -509,6 +509,7 @@ export class Nivel5 extends Phaser.Scene {
                 if (distancia < 40 && this.cursors.down.isDown) {
                     this.puntos = window.GameState.puntos + (this.tiempoRestante * 10);
                     this.updatePuntos(this.puntos);
+                    this.musica.stop(); 
                     this.scene.start('menu');
                 }
             }
