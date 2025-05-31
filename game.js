@@ -20,6 +20,7 @@ export class Game extends Phaser.Scene{
   }
 
   create() {
+    this.scene.start('nivel5')
     this.respawnPoint = { x: 400, y: 80 }
     // Acceder al valor global de vidas
     let lives = window.GameState.lives;
@@ -79,7 +80,7 @@ export class Game extends Phaser.Scene{
       }
     };
 
-    
+
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
@@ -306,11 +307,11 @@ this.bloques = 0;
 
         // Habilita la comprobación para pasar de nivel en update()
         this.iglúCompleto = true;
-      }
+      }}
     }
   }
 
-  update(); {
+  update() {
     // Mover al jugador con la plataforma si está parado sobre ella
     if (this.plataformaActual &&
         this.jugador.body.onFloor() &&
@@ -379,5 +380,5 @@ this.bloques = 0;
       }
     }
   }
-  }
 }
+
