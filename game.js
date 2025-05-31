@@ -79,7 +79,7 @@ export class Game extends Phaser.Scene{
       }
     };
 
-    this.scene.start('nivel3');
+    
     this.add.image(0, 150, 'agua').setOrigin(0, 0).setScale(1.1, 1).setDepth(0);
     this.add.image(0, -180, 'arboles').setOrigin(0, 0).setScale(0.42).setDepth(1);
  
